@@ -91,14 +91,13 @@ namespace Core
 			throw std::runtime_error{ "Bank Index out of range" };
 
 		_bank_index = index;
+		ResizePatternContainer();
 	}
 
 	void Sequencer::SetPatternIndex(unsigned int index)
 	{
 		_pattern_index[_bank_index] = index;
-
-		if (_patterns.size() <= index)
-			_patterns.resize(index + 1);
+		ResizePatternContainer();
 	}
 
 	void Sequencer::SetRate(float rate)
@@ -117,6 +116,12 @@ namespace Core
 
 	float Sequencer::GetRate() const
 	{ return _rate; }
+	
+	void Sequencer::ResizePatternContainer()
+	{
+		if (_patterns.size() <= GetCurrentPatternIndex())
+			_patterns.resize(GetCurrentPatternIndex() + 1);
+	}
 
 	unsigned int Sequencer::GetCurrentPatternIndex() const
 	{ return _pattern_index[_bank_index] * _pattern_index.size() + _bank_index; }

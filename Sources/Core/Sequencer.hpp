@@ -42,6 +42,7 @@ namespace Core
 		using TimePoint = std::chrono::time_point<Clock>;
 		using Seconds = std::chrono::duration<float>; // Because std::chrono::seconds gives integer and the rate is a floating point
 
+		void ResizePatternContainer();
 		unsigned int GetCurrentPatternIndex() const;
 
 		Platform::MidiInterface _midi_interface;
