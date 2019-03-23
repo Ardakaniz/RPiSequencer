@@ -1,6 +1,7 @@
 #include "Core/Sequencer.hpp"
 
 #include <stdexcept>
+#include <iostream>
 
 namespace Core
 {
@@ -9,6 +10,16 @@ namespace Core
 		_last_tap{ Clock::now() }
 	{
 		_patterns.emplace_back(); // Create one first blank pattern so that _pattern_index is not out of bound
+		
+		// TMP
+		const std::vector<std::string>& interfaces{ _midi_interface.GetInterfacesName() };
+		for (unsigned int i{ 0 }; i < interfaces.size(); ++i)
+			std::cout << "Interface #" << i << ": " << interfaces[i] << std::endl;
+		
+		std::cout << "> ";
+		unsigned int id;
+		std::cin >> id;
+		_midi_interface.SelectInterface(id);
 	}
 
 	void Sequencer::OnTap()
@@ -35,6 +46,8 @@ namespace Core
 
 	void Sequencer::Run()
 	{
+		_midi_interface.Poll();
+		
 		bool step{ false };
 		const TimePoint now = Clock::now();
 		const float since_last_step = std::chrono::duration_cast<Seconds>(now - _last_step).count();

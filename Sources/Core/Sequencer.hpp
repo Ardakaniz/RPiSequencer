@@ -4,6 +4,7 @@
 #define CORE_SEQUENCER_HPP
 
 #include "Core/Pattern.hpp"
+#include "Platform/MidiInterface.hpp"
 
 #include <array>
 #include <chrono>
@@ -43,6 +44,7 @@ namespace Core
 
 		unsigned int GetCurrentPatternIndex() const;
 
+		Platform::MidiInterface _midi_interface;
 		State _state{ State::Stop }; // Start stopped by default
 
 		float _rate{ 1.f }; // Step once every seconds by default
