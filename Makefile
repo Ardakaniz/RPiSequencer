@@ -23,7 +23,8 @@ SOURCES = Libraries/Blynk/src/utility/BlynkDebug.cpp \
 	Sources/Core/Pattern.cpp \
 	Sources/Core/Note.cpp \
 	Sources/Blynk/BlynkApp.cpp \
-	Sources/Platform/MidiInterface.cpp
+	Sources/Platform/MidiInterface.cpp \
+	Sources/Platform/MidiNote.cpp
 	
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=sequencer
