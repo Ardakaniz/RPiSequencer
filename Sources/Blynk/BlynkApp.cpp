@@ -59,6 +59,9 @@ BLYNK_WRITE(V4) // Bank selector
 BLYNK_WRITE(V5) // Pattern selector
 { G_seq->SetPatternIndex(param.asInt() - 1); } // Blynk starts at 1, not 0
 
+BLYNK_CONNECTED()
+{ Blynk.syncAll(); } // Send all app values at connection
+
 namespace BlynkApp
 {
 	void Setup(Core::Sequencer* seq, const char* auth)
