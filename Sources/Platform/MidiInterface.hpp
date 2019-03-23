@@ -15,6 +15,8 @@ namespace Platform
 {
 	class MidiInterface // MidiInterface = MidiIn + MidiOut
 	{
+		friend class MidiNote;
+		
 	public:
 		MidiInterface();
 		
@@ -22,11 +24,12 @@ namespace Platform
 		void SelectInterface(unsigned int index);
 		
 		void Poll();
+		
+	private:
 		std::string PopMessage();
 		void SendMessage(const std::string& message);
 		void SendMessage(const std::vector<unsigned char>& message);
-		
-	private:
+	
 		std::unique_ptr<RtMidiIn> _in{ std::make_unique<RtMidiIn>() };
 		std::unique_ptr<RtMidiOut> _out{ std::make_unique<RtMidiOut>() };
 		std::stack<std::string> _in_messages{};

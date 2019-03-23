@@ -3,12 +3,16 @@
 #ifndef CORE_NOTE_HPP
 #define CORE_NOTE_HPP
 
+#include "Platform/MidiNote.hpp"
+
 #include <string>
 
 namespace Core
 {
   class Note
   {
+    friend Platform::MidiNote;
+    
   public:
       Note();
       Note(unsigned int note);
