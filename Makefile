@@ -1,15 +1,7 @@
-# 
-# To build on RaspberryPi:
-# 1. Install WiringPi: http://wiringpi.com/download-and-install/
-# 2. Run:
-#    make target=raspberry
-#    sudo blynk --token=YourAuthToken
-#
-
-CC = clang
-CXX = clang++
-CXXFLAGS += -I Sources -DLINUX -DRASPBERRY
-LDFLAGS += -lrt -lpthread -lwiringPi
+CC ?= clang
+CXX ?= clang++
+CXXFLAGS += -I Sources -DLINUX -DRASPBERRY -D__LINUX_ALSA__
+LDFLAGS += -lrt -lpthread -lwiringPi -lasound -lpthread
 
 ifeq ($(build),release)
 	CXXFLAGS += -c -O3 -w
@@ -19,11 +11,12 @@ else
 	CXXFLAGS += -Wno-vla-extension -Wno-format-security -Wno-unused-function # to make Blynk compile
 endif
 
-CXXFLAGS += -I Libraries/Blynk/src -I Libraries/Blynk/linux
+CXXFLAGS += -I Libraries/Blynk/src -I Libraries/Blynk/linux -I Libraries/rtmidi
 
 SOURCES = Libraries/Blynk/src/utility/BlynkDebug.cpp \
 	Libraries/Blynk/src/utility/BlynkHandlers.cpp \
 	Libraries/Blynk/src/utility/BlynkTimer.cpp \
+	Libraries/rtmidi/RtMidi.cpp \
 	\
 	Sources/main.cpp \
 	Sources/Core/Sequencer.cpp \
