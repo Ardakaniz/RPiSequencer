@@ -1,3 +1,4 @@
 sequencer
 *.o
-Libraries/Blynk
+Libraries/*Blynk*
+Libraries/*rtmidi*
