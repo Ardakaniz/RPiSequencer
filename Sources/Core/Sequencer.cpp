@@ -28,7 +28,7 @@ namespace Core
 			}
 
 			case State::Record: // We add a blank note
-					_patterns[GetCurrentPatternIndex()].AddNote("*");
+					_patterns[GetCurrentPatternIndex()].AddNote();
 				break;
 		}
 	}

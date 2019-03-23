@@ -2,9 +2,6 @@
 
 namespace Core
 {
-	void Pattern::AddNote(const Note& note)
-	{ _notes.push_back(note); };
-
 	void Pattern::Clear()
 	{ 
 		_notes.clear();

@@ -11,15 +11,11 @@ namespace Core
   {
   public:
       Note();
-      Note(char note, unsigned int octave);
-      Note(const std::string& note);
+      Note(unsigned int note);
 
   private:
-      [[noreturn]] void ThrowInvalidNoteString();
-
       bool _is_blank_note;
-      char _note;
-      unsigned int _octave;
+      unsigned int _note;
   };
 }
 

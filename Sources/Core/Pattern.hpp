@@ -15,7 +15,6 @@ namespace Core
 		Pattern() = default;
 
 		template<typename... Args> void AddNote(Args... args);
-		void AddNote(const Note& note);
 		void Clear();
 
 		void Step();
