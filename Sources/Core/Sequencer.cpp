@@ -69,14 +69,20 @@ namespace Core
 
 			case State::Play:
 			{
-				if (step)
+				if (step && !_patterns[GetCurrentPatternIndex()].IsEmpty())
+				{
+					Platform::MidiNote::Write(_midi_interface, _patterns[GetCurrentPatternIndex()].GetNote());
 					_patterns[GetCurrentPatternIndex()].Step();
+				}
 				break;
 			}
 
 			case State::Record:
 			{
-				// TODO: Manage MIDI Inputs
+				Note note{};
+				if (Platform::MidiNote::Read(_midi_interface, note))
+					_patterns[GetCurrentPatternIndex()].AddNote(note);
+					
 				break;
 			}
 
