@@ -2,3 +2,4 @@ sequencer
 *.o
 Libraries/*Blynk*
 Libraries/*rtmidi*
+.vscode
