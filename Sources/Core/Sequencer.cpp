@@ -73,7 +73,7 @@ namespace Core
 					{
 						try
 						{ 
-							_transpose_offset = current_pattern.Offset(note);
+							_transpose_offset = current_pattern.GetNote().Offset(note);
 						}
 						catch (const std::runtime_error&) // The current note is blank, we step the pattern and compute the offset with the next note
 						{
@@ -91,7 +91,7 @@ namespace Core
 			{
 				if (step && !_patterns[GetCurrentPatternIndex()].IsEmpty())
 				{
-					Platform::MidiNote::Trigger(_midi_interface, _patterns[GetCurrentPatternIndex()].GetNote() + _transpose_offset);
+					Platform::MidiNote::Trigger(_midi_interface, Note{ _patterns[GetCurrentPatternIndex()].GetNote(), _transpose_offset });
 					_patterns[GetCurrentPatternIndex()].Step();
 				}
 				break;
