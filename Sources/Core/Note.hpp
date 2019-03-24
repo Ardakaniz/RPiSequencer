@@ -5,8 +5,6 @@
 
 #include "Platform/MidiNote.hpp"
 
-#include <string>
-
 namespace Core
 {
   class Note
@@ -16,6 +14,8 @@ namespace Core
   public:
       Note();
       Note(unsigned int note);
+
+			int Offset(const Note& other) const;
 
   private:
       bool _is_blank_note;

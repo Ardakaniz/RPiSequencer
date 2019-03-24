@@ -1,6 +1,5 @@
 #include "Core/Note.hpp"
 
-#include <cctype>
 #include <stdexcept>
 
 namespace Core
@@ -14,4 +13,12 @@ namespace Core
 		_is_blank_note{ false },
 		_note{ note }
 	{ }
+
+	int Note::Offset(const Note& other) const
+	{ 
+		if (_is_blank_note || other._is_blank_note)
+			throw std::runtime_error{ "Invalid offset with blank note" };
+
+		return static_cast<int>(other._note) - static_cast<int>(_note);
+	}
 }
