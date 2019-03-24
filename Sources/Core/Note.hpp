@@ -14,6 +14,7 @@ namespace Core
   public:
       Note();
       Note(unsigned int note);
+			Note(const Note& note, int offset);
 
 			int Offset(const Note& other) const;
 
