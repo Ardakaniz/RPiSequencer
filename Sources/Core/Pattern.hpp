@@ -18,6 +18,7 @@ namespace Core
 		void Clear();
 
 		void Step();
+		void Reset();
 		bool IsEmpty() const;
 		const Note& GetNote() const;
 

@@ -15,6 +15,9 @@ namespace Core
 		if (_step >= _notes.size())
 			_step = 0;
 	}
+
+	void Pattern::Reset()
+	{ _step = 0; }
 	
 	bool Pattern::IsEmpty() const
 	{ return _notes.empty(); }
