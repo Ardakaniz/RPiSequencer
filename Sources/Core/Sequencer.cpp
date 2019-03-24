@@ -61,17 +61,37 @@ namespace Core
 
 		switch (_state)
 		{
-			case State::Transpose:
+			case State::Transpose: // We change the transpose offset when a note is triggered and then we fall back to State::Play 
 			{
-				// TODO: Manage MIDI Inputs
-				break;
+				Note note{};
+				if (Platform::MidiNote::Read(_midi_interface, note))
+				{
+					Pattern& current_pattern{ _patterns[GetCurrentPatternIndex()] };
+					
+					current_pattern.Reset();
+					while (true)
+					{
+						try
+						{ 
+							_transpose_offset = current_pattern.Offset(note);
+						}
+						catch (const std::runtime_error&) // The current note is blank, we step the pattern and compute the offset with the next note
+						{
+							current_pattern.Step();
+							continue;
+						}
+
+						break;
+					}
+					current_pattern.Reset();
+				}
 			}
 
 			case State::Play:
 			{
 				if (step && !_patterns[GetCurrentPatternIndex()].IsEmpty())
 				{
-					Platform::MidiNote::Trigger(_midi_interface, _patterns[GetCurrentPatternIndex()].GetNote());
+					Platform::MidiNote::Trigger(_midi_interface, _patterns[GetCurrentPatternIndex()].GetNote() + _transpose_offset);
 					_patterns[GetCurrentPatternIndex()].Step();
 				}
 				break;
@@ -114,7 +134,10 @@ namespace Core
 		_state = state;
 
 		if (_state == State::Play)
+		{
 			_last_step = Clock::now();
+			_transpose_offset = 0;
+		}
 	}
 
 	void Sequencer::SetStepCallback(const std::function<void()>& callback)

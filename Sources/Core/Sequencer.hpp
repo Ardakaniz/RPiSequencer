@@ -47,6 +47,7 @@ namespace Core
 
 		Platform::MidiInterface _midi_interface;
 		State _state{ State::Stop }; // Start stopped by default
+		int _transpose_offset{ 0 };
 
 		float _rate{ 1.f }; // Step once every seconds by default
 		std::function<void()> _step_callback{ [](){} };
