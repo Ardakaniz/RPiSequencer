@@ -6,7 +6,6 @@
 #include <RtMidi.h>
 
 #include <memory>
-#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
