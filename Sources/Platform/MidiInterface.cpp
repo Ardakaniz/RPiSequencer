@@ -51,8 +51,13 @@ namespace Platform
 		_last_message = std::string{ std::begin(message), std::end(message) };
 	}
 	
-	const std::string& MidiInterface::LastMessage()
-	{ return _last_message; }
+	std::string MidiInterface::GetLastMessage()
+	{ 
+		std::string last_message{ _last_message };
+		_last_message.clear();
+
+		return last_message;
+	}
 	
 	void MidiInterface::SendMessage(const std::string& message)
 	{ SendMessage(std::vector<unsigned char>(std::begin(message), std::end(message))); }

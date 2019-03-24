@@ -25,7 +25,7 @@ namespace Platform
 		void Poll();
 		
 	private:
-		const std::string& LastMessage();
+		std::string GetLastMessage();
 		void SendMessage(const std::string& message);
 		void SendMessage(const std::vector<unsigned char>& message);
 	

@@ -10,7 +10,7 @@ namespace Platform
 {
 	bool MidiNote::Read(MidiInterface& interface, Core::Note& note)
 	{		
-		std::string msg{ interface.LastMessage() };
+		std::string msg{ interface.GetLastMessage() };
 		if (msg.length() != 3)
 			return false;
 			
