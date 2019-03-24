@@ -14,7 +14,9 @@ namespace Platform
 	{
 	public:
 		static bool Read(MidiInterface& interface, Core::Note& note);
-		static void Write(MidiInterface& interface, const Core::Note& note);
+		static void Trigger(MidiInterface& interface, const Core::Note& note);
+		static void On(MidiInterface& interface, const Core::Note& note);
+		static void Off(MidiInterface& interface, const Core::Note& note);
 	};
 }
 

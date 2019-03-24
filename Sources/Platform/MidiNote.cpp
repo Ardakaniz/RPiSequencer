@@ -24,18 +24,30 @@ namespace Platform
 		return false;
 	}
 		
-	void MidiNote::Write(MidiInterface& interface, const Core::Note& note)
+	void MidiNote::Trigger(MidiInterface& interface, const Core::Note& note)
 	{
 		using namespace std::chrono_literals;
 		
 		if (note._is_blank_note)
 			return;
 		
+		On(interface, note);
+		std::this_thread::sleep_for(10ms); // We hold the note for the shortest time possible to control that on the synth
+		Off(interface, note);
+	}
+
+	void MidiNote::On(MidiInterface& interface, const Core::Note& note)
+	{
+		if (note._is_blank_note)
+			return;
+		
 		std::vector<unsigned char> msg{ static_cast<unsigned char>(144), static_cast<unsigned char>(note._note), static_cast<unsigned char>(69) };
 		interface.SendMessage(msg); // Note On
-		
-		std::this_thread::sleep_for(10ms); // We hold the note for the shortest time possible to control that on the synth
-		msg[0] = static_cast<unsigned char>(128);
+	}
+
+	void MidiNote::Off(MidiInterface& interface, const Core::Note& note)
+	{
+		std::vector<unsigned char> msg{ static_cast<unsigned char>(128), static_cast<unsigned char>(note._note), static_cast<unsigned char>(69) };
 		interface.SendMessage(msg); // Note Off
 	}
 }

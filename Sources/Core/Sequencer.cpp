@@ -71,7 +71,7 @@ namespace Core
 			{
 				if (step && !_patterns[GetCurrentPatternIndex()].IsEmpty())
 				{
-					Platform::MidiNote::Write(_midi_interface, _patterns[GetCurrentPatternIndex()].GetNote());
+					Platform::MidiNote::Trigger(_midi_interface, _patterns[GetCurrentPatternIndex()].GetNote());
 					_patterns[GetCurrentPatternIndex()].Step();
 				}
 				break;
