@@ -26,13 +26,13 @@ namespace Platform
 		void Poll();
 		
 	private:
-		std::string PopMessage();
+		const std::string& LastMessage();
 		void SendMessage(const std::string& message);
 		void SendMessage(const std::vector<unsigned char>& message);
 	
 		std::unique_ptr<RtMidiIn> _in{ std::make_unique<RtMidiIn>() };
 		std::unique_ptr<RtMidiOut> _out{ std::make_unique<RtMidiOut>() };
-		std::stack<std::string> _in_messages{};
+		std::string _last_message{};
 		unsigned int _selected_interface;
 		std::vector<std::pair<unsigned int, unsigned int>> _interfaces_id; // (in, out)
 	};

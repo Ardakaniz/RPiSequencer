@@ -48,19 +48,11 @@ namespace Platform
 		if (message.empty())
 			return;
 			
-		_in_messages.emplace(std::begin(message), std::end(message));
+		_last_message = std::string{ std::begin(message), std::end(message) };
 	}
 	
-	std::string MidiInterface::PopMessage()
-	{
-		if (_in_messages.empty()) // If the stack is empty, we return an empty message
-			return {};
-			
-		std::string back{ _in_messages.top() };
-		_in_messages.pop();
-		
-		return back;
-	}
+	const std::string& MidiInterface::LastMessage()
+	{ return _last_message; }
 	
 	void MidiInterface::SendMessage(const std::string& message)
 	{ SendMessage(std::vector<unsigned char>(std::begin(message), std::end(message))); }
