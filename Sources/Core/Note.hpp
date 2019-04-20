@@ -13,14 +13,14 @@ namespace Core
     
   public:
       Note();
-      Note(unsigned int note);
+      Note(unsigned int note, float duration);
 			Note(const Note& note, int offset);
 
 			int Offset(const Note& other) const;
 
   private:
-      bool _is_blank_note;
       unsigned int _note;
+			float _duration;
   };
 }
 

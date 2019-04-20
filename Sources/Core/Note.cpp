@@ -5,25 +5,20 @@
 namespace Core
 {
 	Note::Note() :
-		_is_blank_note{ true },
-		_note { 0 }
+		_note { 0 },
+		_duration{ 0.f }
 	{ }
 
-	Note::Note(unsigned int note) :
-		_is_blank_note{ false },
-		_note{ note }
+	Note::Note(unsigned int note, float duration) :
+		_note{ note },
+		_duration{ duration }
 	{ }
 
 	Note::Note(const Note& note, int offset) :
-		_is_blank_note{ note._is_blank_note },
-		_note{ note._note + offset }
+		_note{ note._note + offset },
+		_duration{ note._duration }
 	{ }
 
 	int Note::Offset(const Note& other) const
-	{ 
-		if (_is_blank_note || other._is_blank_note)
-			throw std::runtime_error{ "Invalid offset with blank note" };
-
-		return static_cast<int>(other._note) - static_cast<int>(_note);
-	}
+	{ return static_cast<int>(other._note) - static_cast<int>(_note); } // Cast because we can have a negative offset
 }
