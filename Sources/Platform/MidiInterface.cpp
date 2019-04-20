@@ -6,6 +6,13 @@ namespace Platform
 {		
 	MidiInterface::MidiInterface()
 	{
+		UpdateInterfaces();
+	}
+	
+	bool MidiInterface::UpdateInterfaces()
+	{
+		_interfaces_id.clear();
+		
 		std::vector<std::string> in_ports{};
 		for (unsigned int i{ 0 }; i < _in->getPortCount(); ++i)
 			in_ports.push_back(_in->getPortName(i));
@@ -18,6 +25,8 @@ namespace Platform
 			if (in_it != std::end(in_ports))
 				_interfaces_id.emplace_back(std::distance(std::begin(in_ports), in_it), i);
 		}
+		
+		return !_interfaces_id.empty();
 	}
 	
 	std::vector<std::string> MidiInterface::GetInterfacesName() const
@@ -32,12 +41,20 @@ namespace Platform
 	
 	void MidiInterface::SelectInterface(unsigned int index)
 	{
+		CloseInterface();
+		
 		_selected_interface = index;
 		
 		_in->openPort(_interfaces_id[_selected_interface].first);
 		_in->ignoreTypes(false, false, false); //< what does that?
 		
 		_out->openPort(_interfaces_id[_selected_interface].second);
+	}
+	
+	void MidiInterface::CloseInterface()
+	{
+		_in->closePort();
+		_out->closePort();
 	}
 	
 	void MidiInterface::Poll()

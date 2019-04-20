@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # blynk v0.6.1 installation
 echo "*** BLYNK BUILD ***"

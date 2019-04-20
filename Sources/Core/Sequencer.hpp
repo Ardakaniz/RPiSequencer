@@ -4,11 +4,11 @@
 #define CORE_SEQUENCER_HPP
 
 #include "Core/Pattern.hpp"
+#include "Core/Timer.hpp"
 #include "Platform/MidiInterface.hpp"
 
 #include <array>
 #include <chrono>
-#include <functional>
 #include <vector>
 
 namespace Core
@@ -25,34 +25,30 @@ namespace Core
 		};
 
 		Sequencer();
+		
+		std::vector<std::string> GetInterfacesName();
+		void SelectInterface(unsigned int id);
+		void CloseInterface();
 
 		void OnTap();
 		void Run();
 
 		void SetBankIndex(unsigned int index);
 		void SetPatternIndex(unsigned int index);
-		void SetRate(float rate);
 		void SetState(State state);
-		void SetStepCallback(const std::function<void()>& callback);
-
-		float GetRate() const;
 
 	private:
-		using Clock = std::chrono::steady_clock;
-		using TimePoint = std::chrono::time_point<Clock>;
-		using Seconds = std::chrono::duration<float>; // Because std::chrono::seconds gives integer and the rate is a floating point
-
 		void ResizePatternContainer();
 		unsigned int GetCurrentPatternIndex() const;
 
 		Platform::MidiInterface _midi_interface;
+		bool _no_valid_interface{ true };
 		State _state{ State::Stop }; // Start stopped by default
-		int _transpose_offset{ 0 };
+		std::vector<Note> _notes_on;
 
 		float _rate{ 1.f }; // Step once every seconds by default
-		std::function<void()> _step_callback{ [](){} };
-		TimePoint _last_step{};
 		TimePoint _last_tap{};
+		TimePoint _last_note{};
 
 		unsigned int _bank_index{ 0 };
 		std::array<unsigned int, 5> _pattern_index{ 0, 0, 0, 0, 0 };

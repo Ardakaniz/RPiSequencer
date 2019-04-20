@@ -6,21 +6,29 @@
 namespace Core
 {
 	Sequencer::Sequencer() :
-		_last_step{ Clock::now() },
-		_last_tap{ Clock::now() }
+		_last_tap{ Clock::now() },
+		_last_note{ Clock::now() }
 	{
-		_patterns.emplace_back(); // Create one first blank pattern so that _pattern_index is not out of bound
+		_patterns.emplace_back(_midi_interface); // Create one first blank pattern so that _pattern_index is not out of bound
 		
-		// TMP
-		const std::vector<std::string>& interfaces{ _midi_interface.GetInterfacesName() };
-		for (unsigned int i{ 0 }; i < interfaces.size(); ++i)
-			std::cout << "Interface #" << i << ": " << interfaces[i] << std::endl;
-		
-		std::cout << "> ";
-		unsigned int id;
-		std::cin >> id;
-		_midi_interface.SelectInterface(id);
+		_no_valid_interface = _midi_interface.GetInterfacesName().empty();
 	}
+	
+	std::vector<std::string> Sequencer::GetInterfacesName()
+	{ 
+		_no_valid_interface = !_midi_interface.UpdateInterfaces();
+		return _midi_interface.GetInterfacesName();
+	}
+	
+	void Sequencer::SelectInterface(unsigned int id)
+	{
+		if (!_no_valid_interface)
+			_midi_interface.SelectInterface(id);
+	}
+	
+	void Sequencer::CloseInterface()
+	{ _midi_interface.CloseInterface(); }
+		
 
 	void Sequencer::OnTap()
 	{
@@ -38,75 +46,74 @@ namespace Core
 				break;
 			}
 
-			case State::Record: // We add a blank note
-					_patterns[GetCurrentPatternIndex()].AddNote();
+			case State::Record: // We add a blank note that last 0 second
+				const TimePoint now = Clock::now();
+				const float interval = std::chrono::duration_cast<Seconds>(now - _last_note).count();
+				
+				_last_note = now;
+				
+				_patterns[GetCurrentPatternIndex()].AddNote(interval, 0, 0.f);
 				break;
 		}
 	}
 
 	void Sequencer::Run()
 	{
-		_midi_interface.Poll();
-		
-		bool step{ false };
-		const TimePoint now = Clock::now();
-		const float since_last_step = std::chrono::duration_cast<Seconds>(now - _last_step).count();
-
-		if (since_last_step >= _rate)
+		if (_no_valid_interface)
 		{
-			_step_callback();
-			step = true;
-			_last_step = now;
+			_no_valid_interface = !_midi_interface.UpdateInterfaces();
+			return;
 		}
+		
+		_midi_interface.Poll();
 
 		switch (_state)
 		{
-			case State::Transpose: // We change the transpose offset when a note is triggered and then we fall back to State::Play 
+			case State::Transpose: // We change the transpose offset when a note is triggered
 			{
 				Note note{};
-				if (Platform::MidiNote::Read(_midi_interface, note))
+				if (Platform::MidiNote::Read(_midi_interface, note, false))
 				{
 					Pattern& current_pattern{ _patterns[GetCurrentPatternIndex()] };
 					
 					current_pattern.Reset();
-					while (true)
+					do
 					{
-						try
-						{ 
-							_transpose_offset = current_pattern.GetNote().Offset(note);
-						}
-						catch (const std::runtime_error&) // The current note is blank, we step the pattern and compute the offset with the next note
-						{
-							current_pattern.Step();
-							continue;
-						}
-
-						break;
+						current_pattern.SetOffset(current_pattern.GetNote().Offset(note));
 					}
+					while (current_pattern.GetNote().IsBlankNote()); // If it was a blank note, we just loop until we find the first note
+					
 					current_pattern.Reset();
 				}
+				
+				_patterns[GetCurrentPatternIndex()].Run();
+				break;
 			}
-
+			
 			case State::Play:
 			{
-				if (step && !_patterns[GetCurrentPatternIndex()].IsEmpty())
-				{
-					Platform::MidiNote::Trigger(_midi_interface, Note{ _patterns[GetCurrentPatternIndex()].GetNote(), _transpose_offset });
-					_patterns[GetCurrentPatternIndex()].Step();
-				}
+				_patterns[GetCurrentPatternIndex()].SetOffset(0);
+				_patterns[GetCurrentPatternIndex()].Run();
 				break;
 			}
 
 			case State::Record:
 			{
+				
 				Note note{};
 				if (Platform::MidiNote::Read(_midi_interface, note))
-					_patterns[GetCurrentPatternIndex()].AddNote(note);
+				{
+					const TimePoint now = Clock::now();
+					const float interval = std::chrono::duration_cast<Seconds>(now - _last_note).count();
 					
-				break;
+					_last_note = now;
+					
+					_patterns[GetCurrentPatternIndex()].AddNote(interval, note);
+				}
 			}
 
-			default: // = Stop = we dont do anything
+			default:
+				_patterns[GetCurrentPatternIndex()].Stop();
 				break;
 		}
 	}
@@ -126,30 +133,26 @@ namespace Core
 		ResizePatternContainer();
 	}
 
-	void Sequencer::SetRate(float rate)
-	{ _rate = rate; }
-
 	void Sequencer::SetState(Sequencer::State state)
 	{ 
 		_state = state;
 
-		if (_state == State::Play)
+		switch (_state)
 		{
-			_last_step = Clock::now();
-			_transpose_offset = 0;
+		case State::Record:
+			_last_note = Clock::now();
+			break;
+			
+		default:
+			break;
 		}
+		
 	}
-
-	void Sequencer::SetStepCallback(const std::function<void()>& callback)
-	{ _step_callback = callback; }
-
-	float Sequencer::GetRate() const
-	{ return _rate; }
 	
 	void Sequencer::ResizePatternContainer()
 	{
-		if (_patterns.size() <= GetCurrentPatternIndex())
-			_patterns.resize(GetCurrentPatternIndex() + 1);
+		while (_patterns.size() <= GetCurrentPatternIndex())
+			_patterns.emplace_back(_midi_interface);
 	}
 
 	unsigned int Sequencer::GetCurrentPatternIndex() const

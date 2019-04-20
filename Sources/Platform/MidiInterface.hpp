@@ -19,8 +19,10 @@ namespace Platform
 	public:
 		MidiInterface();
 		
+		bool UpdateInterfaces();
 		std::vector<std::string> GetInterfacesName() const;
 		void SelectInterface(unsigned int index);
+		void CloseInterface();
 		
 		void Poll();
 		

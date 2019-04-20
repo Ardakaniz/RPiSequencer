@@ -21,4 +21,10 @@ namespace Core
 
 	int Note::Offset(const Note& other) const
 	{ return static_cast<int>(other._note) - static_cast<int>(_note); } // Cast because we can have a negative offset
+
+	bool Note::IsBlankNote() const
+	{ return _duration == 0.f; }
+
+	float Note::GetDuration() const
+	{ return _duration; }
 }

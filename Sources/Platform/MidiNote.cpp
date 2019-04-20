@@ -1,6 +1,7 @@
 #include "Platform/MidiNote.hpp"
 
 #include "Core/Note.hpp"
+#include "Core/Timer.hpp"
 #include "Platform/MidiInterface.hpp"
 
 #include <chrono>
@@ -8,29 +9,46 @@
 
 namespace Platform
 {
-	bool MidiNote::Read(MidiInterface& interface, Core::Note& note)
-	{		
+	bool MidiNote::Read(MidiInterface& interface, Core::Note& note, bool get_duration)
+	{
 		std::string msg{ interface.GetLastMessage() };
-		if (msg.length() != 3)
-			return false;
-			
-		if (msg[0] == static_cast<unsigned char>(144))
+		switch (GetMessageType(msg))
 		{
-			note._is_blank_note = false;
-			note._note = static_cast<unsigned int>(msg[1]);
-			return true;
+			case Message::On:
+			{
+				note._note = static_cast<unsigned int>(msg[1]);
+
+				if (get_duration)
+				{
+					const TimePoint read_on = Clock::now();
+
+					while (true) // We wait for the note to be released
+					{
+						interface.Poll();
+						msg = interface.GetLastMessage();
+						
+						if (GetMessageType(msg) == Message::Off)
+						{
+							const TimePoint now = Clock::now();
+							note._duration = std::chrono::duration_cast<Seconds>(now - read_on).count();
+							
+							break;
+						}
+					}
+				}
+
+				return true;
+			}
+
+			default:
+				return false;
 		}
-				
-		return false;
 	}
 		
 	void MidiNote::Trigger(MidiInterface& interface, const Core::Note& note)
 	{
 		using namespace std::chrono_literals;
-		
-		if (note._is_blank_note)
-			return;
-		
+
 		On(interface, note);
 		std::this_thread::sleep_for(10ms); // We hold the note for the shortest time possible to control that on the synth
 		Off(interface, note);
@@ -38,9 +56,6 @@ namespace Platform
 
 	void MidiNote::On(MidiInterface& interface, const Core::Note& note)
 	{
-		if (note._is_blank_note)
-			return;
-		
 		std::vector<unsigned char> msg{ static_cast<unsigned char>(144), static_cast<unsigned char>(note._note), static_cast<unsigned char>(69) };
 		interface.SendMessage(msg); // Note On
 	}
@@ -49,5 +64,17 @@ namespace Platform
 	{
 		std::vector<unsigned char> msg{ static_cast<unsigned char>(128), static_cast<unsigned char>(note._note), static_cast<unsigned char>(69) };
 		interface.SendMessage(msg); // Note Off
+	}
+
+	MidiNote::Message MidiNote::GetMessageType(const std::string& message)
+	{
+		if (message.length() != 3)
+			return Message::Invalid;
+		else if (message[0] == static_cast<unsigned char>(144))
+			return Message::On;
+		else if (message[0] == static_cast<unsigned char>(128))
+			return Message::Off;
+		else
+			return Message::Invalid;
 	}
 }

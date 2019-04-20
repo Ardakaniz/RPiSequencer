@@ -17,6 +17,8 @@ namespace Core
 			Note(const Note& note, int offset);
 
 			int Offset(const Note& other) const;
+			bool IsBlankNote() const;
+			float GetDuration() const;
 
   private:
       unsigned int _note;
