@@ -9,7 +9,7 @@
 
 namespace Platform
 {
-	bool MidiNote::Read(MidiInterface& interface, Core::Note& note, bool get_duration)
+	bool MidiNote::Read(MidiInterface& interface, Core::Note& note, TimePoint& trigger_point, bool get_duration)
 	{
 		std::string msg{ interface.GetLastMessage() };
 		switch (GetMessageType(msg))
@@ -20,7 +20,7 @@ namespace Platform
 
 				if (get_duration)
 				{
-					const TimePoint read_on = Clock::now();
+					trigger_point = Clock::now();
 
 					while (true) // We wait for the note to be released
 					{
@@ -30,7 +30,7 @@ namespace Platform
 						if (GetMessageType(msg) == Message::Off)
 						{
 							const TimePoint now = Clock::now();
-							note._duration = std::chrono::duration_cast<Seconds>(now - read_on).count();
+							note._duration = std::chrono::duration_cast<Seconds>(now - trigger_point).count();
 							
 							break;
 						}

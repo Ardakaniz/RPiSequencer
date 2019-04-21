@@ -3,6 +3,8 @@
 #ifndef PLATFORM_MIDINOTE_HPP
 #define PLATFORM_MIDINOTE_HPP
 
+#include "Core/Timer.hpp"
+
 #include <string>
 
 namespace Core
@@ -15,7 +17,7 @@ namespace Platform
 	class MidiNote
 	{
 	public:
-		static bool Read(MidiInterface& interface, Core::Note& note, bool get_duration = true);
+		static bool Read(MidiInterface& interface, Core::Note& note, TimePoint& trigger_point, bool get_duration = true);
 		static void Trigger(MidiInterface& interface, const Core::Note& note);
 		static void On(MidiInterface& interface, const Core::Note& note);
 		static void Off(MidiInterface& interface, const Core::Note& note);

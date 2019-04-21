@@ -72,7 +72,8 @@ namespace Core
 			case State::Transpose: // We change the transpose offset when a note is triggered
 			{
 				Note note{};
-				if (Platform::MidiNote::Read(_midi_interface, note, false))
+				TimePoint dummy_point;
+				if (Platform::MidiNote::Read(_midi_interface, note, dummy_point, false))
 				{
 					Pattern& current_pattern{ _patterns[GetCurrentPatternIndex()] };
 					
@@ -101,12 +102,12 @@ namespace Core
 			{
 				
 				Note note{};
-				if (Platform::MidiNote::Read(_midi_interface, note))
+				TimePoint note_trigger;
+				if (Platform::MidiNote::Read(_midi_interface, note, note_trigger))
 				{
-					const TimePoint now = Clock::now();
-					const float interval = std::chrono::duration_cast<Seconds>(now - _last_note).count();
+					const float interval = std::chrono::duration_cast<Seconds>(note_trigger - _last_note).count();
 					
-					_last_note = now;
+					_last_note = note_trigger;
 					
 					_patterns[GetCurrentPatternIndex()].AddNote(interval, note);
 				}
