@@ -75,13 +75,13 @@ BLYNK_CONNECTED()
 
 namespace BlynkApp
 {
-	void SynthListUpdate()
+	void UpdateDeviceList()
 	{
 		BlynkParamAllocated items{ 128 };
 		items.add("Off");
 		const std::vector<std::string>& interfaces{ G_seq->GetInterfacesName() };
 		if (interfaces.empty())
-			items.add("No synth found");
+			items.add("No device found");
 		else
 		{
 			for (const std::string& interface : interfaces)
@@ -97,7 +97,7 @@ namespace BlynkApp
 		G_seq = seq;
 		Blynk.begin(auth);
 		
-		G_synthlist_update_timer.setInterval(2000L, SynthListUpdate);
+		G_synthlist_update_timer.setInterval(2000L, UpdateDeviceList);
 	}
 
 	void Run()
