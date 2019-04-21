@@ -30,10 +30,14 @@ namespace Core
 			}
 		}
 		
-		if (_intervals.empty())
+		if (_intervals.empty()) // If there is no notes to trigger, we just stop here
 			return;
 
-		now = Clock::now();
+		now = Clock::now(); // The first operation can take time
+		
+		if (_step == 0 && !_notes_on.empty()) // When we are at the first step, we wait that every note from the previous loop get off by setting _last_step to now until that moment
+			_last_step = now;
+		
 		const float since_last_step = std::chrono::duration_cast<Seconds>(now - _last_step).count();
 		if (since_last_step >= _intervals[_step])
 		{
