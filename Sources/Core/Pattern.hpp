@@ -20,6 +20,7 @@ namespace Core
 		void Clear();
 
 		void Run();
+		void Trigger();
 		void Stop();
 		void Reset();
 		void SetOffset(int offset);
@@ -28,7 +29,7 @@ namespace Core
 
 	private:
 		void Step();
-
+	
 		Platform::MidiInterface& _midi_interface;
 		TimePoint _last_step;
 		int _offset { 0 };

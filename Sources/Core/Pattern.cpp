@@ -47,6 +47,17 @@ namespace Core
 		}
 	}
 	
+	void Pattern::Trigger()
+	{
+		if (!_notes.empty())
+		{
+			Note note{ _notes[_step], _offset };
+			Platform::MidiNote::Trigger(_midi_interface, note);
+		}
+		
+		Step();
+	}
+	
 	void Pattern::Stop()
 	{
 		for (const auto& note : _notes_on)
@@ -67,7 +78,7 @@ namespace Core
 	
 	bool Pattern::IsEmpty() const
 	{ return _notes.empty(); }
-
+	
 	void Pattern::Step()
 	{
 		++_step;
