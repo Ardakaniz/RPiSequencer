@@ -86,14 +86,14 @@ namespace Core
 					current_pattern.Reset();
 				}
 				
-				_patterns[GetCurrentPatternIndex()].Run();
+				StepPattern();
 				break;
 			}
 			
 			case State::Play:
 			{
 				_patterns[GetCurrentPatternIndex()].SetOffset(0);
-				_patterns[GetCurrentPatternIndex()].Run();
+				StepPattern();
 				break;
 			}
 
@@ -136,17 +136,31 @@ namespace Core
 	void Sequencer::SetState(Sequencer::State state)
 	{ 
 		_state = state;
-
-		switch (_state)
+		_last_note = Clock::now();
+	}
+	
+	void Sequencer::EnableStepperMode(bool enable)
+	{ 
+		_stepper_mode = enable;
+		_last_note = Clock::now();
+		_patterns[GetCurrentPatternIndex()].Stop();
+	}
+	
+	void Sequencer::StepPattern()
+	{
+		if (_stepper_mode)
 		{
-		case State::Record:
-			_last_note = Clock::now();
-			break;
-			
-		default:
-			break;
+			const TimePoint now = Clock::now();
+			const float interval = std::chrono::duration_cast<Seconds>(now - _last_note).count();
+
+			if (interval >= _rate)
+			{
+				_last_note = now;
+				_patterns[GetCurrentPatternIndex()].Trigger();
+			}
 		}
-		
+		else
+			_patterns[GetCurrentPatternIndex()].Run();
 	}
 	
 	void Sequencer::ResizePatternContainer()

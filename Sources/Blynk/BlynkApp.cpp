@@ -51,8 +51,8 @@ BLYNK_WRITE(V1) // Mode switcher
 	}
 }
 
-/*BLYNK_WRITE(V2) // Stepper Mode
-{ G_seq->SetStepperMode(param.asInt() == 1); }*/
+BLYNK_WRITE(V2) // Stepper Mode
+{ G_seq->EnableStepperMode(param.asInt() == 1); }
 
 BLYNK_WRITE(V3) // Pattern selector
 { G_seq->SetPatternIndex(param.asInt() - 1); } // Blynk starts at 1, not 0
@@ -70,7 +70,7 @@ BLYNK_CONNECTED()
 { 
 	Blynk.syncAll(); // Send all app values at connection
 	
-	Blynk.setProperty(V0, "labels", "Off", "No synth found");
+	Blynk.setProperty(V0, "labels", "Off", "No device found");
 } 
 
 namespace BlynkApp

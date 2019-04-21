@@ -36,8 +36,10 @@ namespace Core
 		void SetBankIndex(unsigned int index);
 		void SetPatternIndex(unsigned int index);
 		void SetState(State state);
+		void EnableStepperMode(bool enable = true);
 
 	private:
+		void StepPattern();
 		void ResizePatternContainer();
 		unsigned int GetCurrentPatternIndex() const;
 
@@ -45,6 +47,7 @@ namespace Core
 		bool _no_valid_interface{ true };
 		State _state{ State::Stop }; // Start stopped by default
 		std::vector<Note> _notes_on;
+		bool _stepper_mode{ false };
 
 		float _rate{ 1.f }; // Step once every seconds by default
 		TimePoint _last_tap{};
