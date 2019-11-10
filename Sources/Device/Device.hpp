@@ -10,8 +10,8 @@ public:
 	Device() = default;
 	virtual ~Device();
 
-	virtual bool Open(unsigned int index) = 0;
-	virtual bool Close() = 0;
+	virtual void Open(unsigned int index) = 0;
+	virtual void Close() = 0;
 
 	virtual std::string GetDeviceType() const = 0;
 	virtual std::string GetDeviceName() const = 0;
