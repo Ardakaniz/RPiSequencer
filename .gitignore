@@ -3,3 +3,4 @@ sequencer
 Libraries/*Blynk*
 Libraries/*rtmidi*
 .vscode
+VSFiles/*
