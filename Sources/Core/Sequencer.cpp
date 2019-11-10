@@ -20,12 +20,15 @@ namespace Core {
 		{
 			unsigned int step_count = 0;
 			if (_pattern_index > 0)
-				step_count = static_cast<unsigned int>(GetPattern(0).size());
+				step_count = static_cast<unsigned int>(GetPattern(0).first.size());
 
-			_recorder.RecordStep(GetPattern(), step_count);
+			_recorder.Start(std::shared_ptr<Pattern>{ &GetPattern() }, step_count); // Do not really know if that is ok. NB: If something explodes, it might come from there
 			
 			break;
 		}
 		}
+		}
+
+		_recorder.Run();
 	}
 }
