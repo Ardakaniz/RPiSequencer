@@ -1,17 +1,17 @@
 namespace Core {
-	const std::vector<Note>& Sequencer::GetPattern() const {
+	const std::pair<std::vector<Note>, TimePoint>& Sequencer::GetPattern() const {
 		return GetPattern(_pattern_index, _bank_index);
 	}
 
-	std::vector<Note>& Sequencer::GetPattern() {
+	std::pair<std::vector<Note>, TimePoint>& Sequencer::GetPattern() {
 		return GetPattern(_pattern_index, _bank_index);
 	}
 
-	const std::vector<Note>& Sequencer::GetPattern(unsigned int pattern_index, unsigned int bank_index) const {
-		return _notes[bank_index * BANK_COUNT + pattern_index];
+	const std::pair<std::vector<Note>, TimePoint>& Sequencer::GetPattern(unsigned int pattern_index, unsigned int bank_index) const {
+		return _notes[static_cast<std::size_t>(bank_index * BANK_COUNT + pattern_index)];
 	}
 
-	std::vector<Note>& Sequencer::GetPattern(unsigned int pattern_index, unsigned int bank_index) {
-		return _notes[bank_index * BANK_COUNT + pattern_index];
+	std::pair<std::vector<Note>, TimePoint>& Sequencer::GetPattern(unsigned int pattern_index, unsigned int bank_index) {
+		return _notes[static_cast<std::size_t>(bank_index * BANK_COUNT + pattern_index)];
 	}
 }

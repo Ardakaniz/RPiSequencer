@@ -23,6 +23,8 @@ namespace Core {
 			Stop
 		};
 
+		using Pattern = std::pair<std::vector<Note>, TimePoint /* pattern_start */>;
+
 		Sequencer(Controller& controller, std::shared_ptr<InputDevice> device_in, const std::vector<std::shared_ptr<OutputDevice>>& devices_out);
 
 		void SetMode(Mode mode, bool stepper = false);
@@ -30,16 +32,16 @@ namespace Core {
 		void Run();
 
 	private:
-		inline const std::vector<Note>& GetPattern() const;
-		inline std::vector<Note>& GetPattern();
-		inline const std::vector<Note>& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT) const;
-		inline std::vector<Note>& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT);
+		inline const Pattern& GetPattern() const;
+		inline Pattern& GetPattern();
+		inline const Pattern& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT) const;
+		inline Pattern& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT);
 
 		Controller& _controller;
 		Recorder _recorder;
 		Player _player;
 
-		std::array<std::vector<Note>, BANK_COUNT * PATTERN_COUNT> _notes;
+		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes;
 		unsigned int _pattern_index{ 0 }, _bank_index{ 0 };
 
 		Mode _mode{ Mode::Stop };
