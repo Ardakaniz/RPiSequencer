@@ -31,5 +31,6 @@ public:
 	OutputDevice() = default;
 	virtual ~OutputDevice() = default;
 
-	virtual void SendNote(const Core::Note& note) = 0;
+	virtual void PlayNote(const Core::Note& note) = 0;
+	virtual void StopNote(const Core::Note& note) = 0;
 };
