@@ -8,10 +8,10 @@ namespace Core {
 	}
 
 	const Pattern& Sequencer::GetPattern(unsigned int pattern_index, unsigned int bank_index) const {
-		return _notes[static_cast<std::size_t>(bank_index * BANK_COUNT) + pattern_index];
+		return _notes[bank_index * BANK_COUNT + pattern_index];
 	}
 
 	Pattern& Sequencer::GetPattern(unsigned int pattern_index, unsigned int bank_index) {
-		return _notes[static_cast<std::size_t>(bank_index * BANK_COUNT) + pattern_index];
+		return _notes[bank_index * BANK_COUNT + pattern_index];
 	}
 }
