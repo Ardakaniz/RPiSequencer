@@ -23,7 +23,7 @@ public:
 	InputDevice() = default;
 	virtual ~InputDevice() = default;
 
-	virtual std::optional<Core::Note> ReadNote() = 0;
+	virtual std::optional<std::pair<Core::Note, bool /*pressed?*/>> ReadNote() = 0;
 };
 
 class OutputDevice : Device {
