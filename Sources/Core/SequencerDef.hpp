@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace Core {
 	static constexpr const unsigned int BANK_COUNT = 100;
 	static constexpr const unsigned int PATTERN_COUNT = 5;
