@@ -9,14 +9,14 @@ namespace Core {
 
 	}
 
-	void Sequencer::SetMode(Mode mode, bool stepper) {
+	void Sequencer::SetMode(SeqMode mode, bool stepper) {
 		_mode = mode;
 		_stepper_mode = stepper;
 	}
 
 	void Sequencer::Run() {
 		switch (_mode) {
-		case Mode::Record:
+		case SeqMode::Record:
 		{
 			unsigned int step_count = 0;
 			if (_pattern_index > 0)

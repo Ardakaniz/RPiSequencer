@@ -9,25 +9,14 @@
 #include "Core/Note.hpp"
 #include "Core/Player.hpp"
 #include "Core/Recorder.hpp"
+#include "Core/SequencerDef.hpp"
 
 namespace Core {
 	class Sequencer {
 	public:
-		static constexpr const unsigned int BANK_COUNT = 100;
-		static constexpr const unsigned int PATTERN_COUNT = 5;
-		enum class Mode {
-			Play,
-			Transpose,
-			Arpegiator,
-			Record,
-			Stop
-		};
-
-		using Pattern = std::pair<std::vector<Note>, TimePoint /* pattern_start */>;
-
 		Sequencer(Controller& controller, std::shared_ptr<InputDevice> device_in, const std::vector<std::shared_ptr<OutputDevice>>& devices_out);
 
-		void SetMode(Mode mode, bool stepper = false);
+		void SetMode(SeqMode mode, bool stepper = false);
 
 		void Run();
 
@@ -44,7 +33,7 @@ namespace Core {
 		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes;
 		unsigned int _pattern_index{ 0 }, _bank_index{ 0 };
 
-		Mode _mode{ Mode::Stop };
+		SeqMode _mode{ SeqMode::Stop };
 		bool _stepper_mode{ false };
 	};
 }
