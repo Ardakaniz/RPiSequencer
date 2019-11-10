@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 
 class Controller {
 public:
@@ -24,10 +25,13 @@ public:
 	Controller() = default;
 	virtual ~Controller() = default;
 
-	virtual void OnNewEventSig(EventCallback callback);
+	virtual void OnNewEventCallback(EventCallback callback);
 
 	virtual void Poll() = 0;
 
+protected:
+	void Call(const Event& event) const;
+
 private:
-	EventCallback _on_event_callback;
+	std::optional<EventCallback> _on_event_callback{ std::nullopt };
 };
