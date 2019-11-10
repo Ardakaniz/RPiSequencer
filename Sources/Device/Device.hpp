@@ -8,7 +8,7 @@
 class Device {
 public:
 	Device() = default;
-	virtual ~Device();
+	virtual ~Device() = default;
 
 	virtual void Open(unsigned int index) = 0;
 	virtual void Close() = 0;
