@@ -11,7 +11,7 @@ public:
 	virtual ~Device();
 
 	virtual bool Open(unsigned int index) = 0;
-	virtual bool Close();
+	virtual bool Close() = 0;
 
 	virtual std::string GetDeviceType() const = 0;
 	virtual std::string GetDeviceName() const = 0;
