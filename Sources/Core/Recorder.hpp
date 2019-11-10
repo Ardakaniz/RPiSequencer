@@ -11,7 +11,7 @@ namespace Core {
 	public:
 		Recorder(std::shared_ptr<InputDevice> device);
 
-		void Record(std::vector<Note>& pattern, unsigned int step_count);
+		void RecordStep(std::vector<Note>& pattern, unsigned int step_count);
 
 	private:
 		std::shared_ptr<InputDevice> _device;

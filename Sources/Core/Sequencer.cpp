@@ -22,7 +22,7 @@ namespace Core {
 			if (_pattern_index > 0)
 				step_count = static_cast<unsigned int>(GetPattern(0).size());
 
-			_recorder.Record(GetPattern(), step_count);
+			_recorder.RecordStep(GetPattern(), step_count);
 			
 			break;
 		}

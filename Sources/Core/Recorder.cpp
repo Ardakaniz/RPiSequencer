@@ -5,7 +5,7 @@ namespace Core {
 		_device{ device }
 	{ }
 
-	void Recorder::Record(std::vector<Note>& pattern, unsigned int step_count) {
+	void Recorder::RecordStep(std::vector<Note>& pattern, unsigned int step_count) {
 		if (step_count > 0 && pattern.size() >= step_count)
 			return;
 	}
