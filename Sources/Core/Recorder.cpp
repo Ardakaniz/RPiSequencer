@@ -5,8 +5,8 @@ namespace Core {
 		_device{ device }
 	{ }
 
-	void Recorder::Start(std::shared_ptr<Pattern> pattern, unsigned int step_count) {
-		_pattern = pattern;
+	void Recorder::Start(Pattern& pattern, unsigned int step_count) {
+		_pattern = &pattern;
 		_step_count = step_count;
 
 		_pattern->second = Clock::now();
