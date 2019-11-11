@@ -15,6 +15,7 @@ namespace Core {
 	class Sequencer {
 	public:
 		Sequencer(Controller& controller, std::shared_ptr<InputDevice> device_in, const std::vector<std::shared_ptr<OutputDevice>>& devices_out);
+		~Sequencer();
 
 		void SetMode(SeqMode mode, bool stepper = false);
 

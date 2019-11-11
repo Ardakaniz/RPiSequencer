@@ -29,6 +29,11 @@ namespace Core {
 		});
 	}
 
+	Sequencer::~Sequencer() {
+		_player.Stop();
+		_recorder.Stop();
+	}
+
 	void Sequencer::SetMode(SeqMode mode, bool stepper) {
 		_mode = mode;
 		_stepper_mode = stepper;
