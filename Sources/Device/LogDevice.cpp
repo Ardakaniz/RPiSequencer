@@ -37,7 +37,7 @@ std::string LogDevice::GetDeviceName() const
 		return "Error Output";
 
 	default:
-		throw std::runtime_error{ "[LogDevice] Invalid device: cannot get name" };
+		throw std::runtime_error{ "[LogDevice] Cannot get device name: Invalid device" };
 	}
 }
 
@@ -49,7 +49,7 @@ void LogDevice::PlayNote(const Core::Note& note) {
 	if (_os == nullptr)
 		throw std::runtime_error{ "[LogDevice] Trying to use invalid device" };
 
-	(*_os) << "Playing Note " << note.note << " for " << std::chrono::duration_cast<Core::Duration>(note.release_instant - note.pressed_instant).count() << "s" << std::endl;
+	(*_os) << "Playing Note " << note.note << " for " << std::chrono::duration_cast<Core::Duration>(note.release_instant - note.pressed_instant).count() / (1'000'000'000.f) << "s" << std::endl;
 }
 
 void LogDevice::StopNote(const Core::Note& note) {
