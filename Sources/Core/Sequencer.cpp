@@ -6,7 +6,27 @@ namespace Core {
 		_recorder{ device_in },
 		_player{ devices_out }
 	{
+		_controller.OnNewEventCallback([this](const Controller::Event& event) {
+			switch (event.type) {
+			case Controller::Event::INPUT_DEVICE:
+				break;
+			case Controller::Event::OUTPUT_DEVICE:
+				break;
+			case Controller::Event::SEQUENCER_MODE:
+				SetMode(static_cast<SeqMode>(event.i), event.b);
+				break;
+			case Controller::Event::PATTERN:
+				return UpdatePatternIndex(_bank_index, event.i);
+				break;
+			case Controller::Event::BANK:
+				return UpdatePatternIndex(event.i, _pattern_index);
+				break;
+			case Controller::Event::TAP:
+				break;
+			}
 
+			return true;
+		});
 	}
 
 	void Sequencer::SetMode(SeqMode mode, bool stepper) {
@@ -40,5 +60,13 @@ namespace Core {
 		_recorder.Run();
 		_player.Run();
 	}
+
+	bool Sequencer::UpdatePatternIndex(unsigned int bank, unsigned int pattern) {
+		if (_recorder.IsRecording())
+			return false; // If we are recording, we dont allow to change pattern selection
+
+		_bank_index = bank;
+		_pattern_index = pattern;
+		return true;
 	}
 }

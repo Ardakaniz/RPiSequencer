@@ -21,6 +21,8 @@ namespace Core {
 		void Run();
 
 	private:
+		bool UpdatePatternIndex(unsigned int bank, unsigned int pattern);
+
 		inline const Pattern& GetPattern() const;
 		inline Pattern& GetPattern();
 		inline const Pattern& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT) const;
@@ -30,7 +32,7 @@ namespace Core {
 		Recorder _recorder;
 		Player _player;
 
-		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes;
+		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes{};
 		unsigned int _pattern_index{ 0 }, _bank_index{ 0 };
 
 		SeqMode _mode{ SeqMode::Stop };
