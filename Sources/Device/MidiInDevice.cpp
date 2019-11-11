@@ -59,7 +59,7 @@ std::optional<std::pair<Core::Note, bool>> MidiInDevice::ReadNote() {
 		return std::nullopt; // Just ignore the message
 
 	auto filled_note = parse_msg();
-	if (!filled_note.has_value()) // God damn map function is still missing, Rust is better
+	if (!filled_note) // God damn map function is still missing, Rust is better
 		return std::nullopt;
 	else
 		return std::make_pair(*filled_note, note_pressed);
