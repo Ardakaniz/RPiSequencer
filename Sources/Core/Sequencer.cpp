@@ -12,9 +12,10 @@ namespace Core {
 	void Sequencer::SetMode(SeqMode mode, bool stepper) {
 		_mode = mode;
 		_stepper_mode = stepper;
-	}
 
-	void Sequencer::Run() {
+		_player.Stop();
+		_recorder.Stop();
+
 		switch (_mode) {
 		case SeqMode::Record:
 		{
@@ -23,12 +24,21 @@ namespace Core {
 				step_count = static_cast<unsigned int>(GetPattern(0).first.size());
 
 			_recorder.Start(GetPattern(), step_count);
-			
+
+			break;
+		}
+		case SeqMode::Play:
+		{
+			_player.Start(GetPattern());
 			break;
 		}
 		}
-		}
+	}
 
+	void Sequencer::Run() {
+		_controller.Poll();
 		_recorder.Run();
+		_player.Run();
+	}
 	}
 }
