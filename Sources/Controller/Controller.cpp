@@ -5,6 +5,6 @@ void Controller::OnNewEventCallback(EventCallback callback) {
 }
 
 void Controller::Call(const Event& event) const {
-	if (_on_event_callback.has_value())
+	if (_on_event_callback)
 		_on_event_callback.value()(event);
 }
