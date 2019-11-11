@@ -3,6 +3,10 @@
 #include <functional>
 #include <optional>
 
+/*
+TODO: Prendre des refs sur les devices pour pouvoir ouvrir/fermer/choisir les ports depuis le controleur
+*/
+
 class Controller {
 public:
 	struct Event {
@@ -20,7 +24,7 @@ public:
 		unsigned int i;
 	};
 
-	using EventCallback = std::function<void(const Event&)>;
+	using EventCallback = std::function<bool(const Event&)>; // Return false if the event hasnt been accepted or ignored
 
 	Controller() = default;
 	virtual ~Controller() = default;
@@ -30,7 +34,7 @@ public:
 	virtual void Poll() = 0;
 
 protected:
-	void Call(const Event& event) const;
+	bool Call(const Event& event) const;
 
 private:
 	std::optional<EventCallback> _on_event_callback{ std::nullopt };
