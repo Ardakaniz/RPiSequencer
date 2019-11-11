@@ -12,7 +12,7 @@ namespace Core {
 
 		std::uint8_t chan{ 0 };
 
-		inline float GetDuration() const {
+		inline auto GetDuration() const {
 			return std::chrono::duration_cast<Duration>(release_instant - pressed_instant).count();
 		}
 	};
