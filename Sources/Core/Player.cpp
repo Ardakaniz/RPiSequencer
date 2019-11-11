@@ -1,5 +1,7 @@
 #include "Core/Player.hpp"
 
+#include <algorithm>
+
 namespace Core {
 	Player::Player(const std::vector<std::shared_ptr<OutputDevice>>& devices) :
 		_devices{ devices }
@@ -38,16 +40,15 @@ namespace Core {
 		}
 
 		// But whatever, we check always if there are notes to release
-		std::vector<std::vector<Note>::const_iterator> to_release{}; // Stack note iterator to release
-		for (auto it = std::begin(_played_note); it != std::end(_played_note); ++it) {
-			if (now >= it->release_instant) {
-				StopNote(*it);
-				to_release.emplace_back(it);
+		auto remove_it = std::remove_if(std::begin(_played_note), std::end(_played_note), [&now, this](const Note& note) { 
+			if (now >= note.release_instant) {
+				StopNote(note);
+				return true;
 			}
-		}
-		
-		for (auto it : to_release) // To remove them from _played_note array
-			_played_note.erase(it);
+			return false;
+		});
+
+		_played_note.erase(remove_it, std::end(_played_note));
 	}
 
 	bool Player::IsPlaying() const {
