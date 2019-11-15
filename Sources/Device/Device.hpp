@@ -18,7 +18,7 @@ public:
 	virtual std::vector<std::string> GetDeviceList() = 0;
 };
 
-class InputDevice : Device {
+class InputDevice : public Device {
 public:
 	InputDevice() = default;
 	virtual ~InputDevice() = default;
@@ -26,7 +26,7 @@ public:
 	virtual std::optional<std::pair<Core::Note, bool /*pressed?*/>> ReadNote() = 0;
 };
 
-class OutputDevice : Device {
+class OutputDevice : public Device {
 public:
 	OutputDevice() = default;
 	virtual ~OutputDevice() = default;
