@@ -1,11 +1,12 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <optional>
+#include <vector>
 
-/*
-TODO: Prendre des refs sur les devices pour pouvoir ouvrir/fermer/choisir les ports depuis le controleur
-*/
+class InputDevice;
+class OutputDevice;
 
 class Controller {
 public:
@@ -26,7 +27,7 @@ public:
 
 	using EventCallback = std::function<bool(const Event&)>; // Return false if the event hasnt been accepted or ignored
 
-	Controller() = default;
+	Controller(const std::vector<std::shared_ptr<InputDevice>>& input_devices, const std::vector<std::shared_ptr<OutputDevice>>& output_devices);
 	virtual ~Controller() = default;
 
 	virtual void OnNewEventCallback(EventCallback callback);
@@ -35,6 +36,9 @@ public:
 
 protected:
 	bool Call(const Event& event) const;
+
+	const std::vector<std::shared_ptr<InputDevice>> _input_devices;
+	const std::vector<std::shared_ptr<OutputDevice>> _output_devices;
 
 private:
 	std::optional<EventCallback> _on_event_callback{ std::nullopt };
