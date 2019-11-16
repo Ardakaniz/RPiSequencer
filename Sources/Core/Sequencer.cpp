@@ -61,7 +61,7 @@ namespace Core {
 	}
 
 	void Sequencer::Run() {
-		_controller.Poll();
+		_controller.Run();
 		_recorder.Run();
 		_player.Run();
 	}

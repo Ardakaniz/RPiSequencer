@@ -32,7 +32,7 @@ public:
 
 	virtual void OnNewEventCallback(EventCallback callback);
 
-	virtual void Poll() = 0;
+	virtual void Run() = 0;
 
 protected:
 	bool Call(const Event& event) const;
