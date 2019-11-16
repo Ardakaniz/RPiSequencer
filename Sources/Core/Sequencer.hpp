@@ -14,14 +14,13 @@
 namespace Core {
 	class Sequencer {
 	public:
-		Sequencer(Controller& controller, std::shared_ptr<InputDevice> device_in, const std::vector<std::shared_ptr<OutputDevice>>& devices_out);
+		Sequencer(Controller& controller);
 		~Sequencer();
-
-		void SetMode(SeqMode mode, bool stepper = false);
 
 		void Run();
 
 	private:
+		void SetMode(unsigned int flags);
 		bool UpdatePatternIndex(unsigned int bank, unsigned int pattern);
 
 		inline const Pattern& GetPattern() const;
@@ -35,9 +34,6 @@ namespace Core {
 
 		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes{};
 		unsigned int _pattern_index{ 0 }, _bank_index{ 0 };
-
-		SeqMode _mode{ SeqMode::Stop };
-		bool _stepper_mode{ false };
 	};
 }
 

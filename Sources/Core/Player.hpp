@@ -12,7 +12,10 @@
 namespace Core {
 	class Player {
 	public:
-		Player(const std::vector<std::shared_ptr<OutputDevice>>& devices);
+		Player() = default;
+
+		void AddDevice(std::shared_ptr<OutputDevice> device);
+		void RemoveDevice(std::shared_ptr<OutputDevice> device);
 
 		void Start(Pattern& pattern, bool loop = true);
 		void Stop();

@@ -1,25 +1,28 @@
 #include "Core/Sequencer.hpp"
 
 namespace Core {
-	Sequencer::Sequencer(Controller& controller, std::shared_ptr<InputDevice> device_in, const std::vector<std::shared_ptr<OutputDevice>>& devices_out) :
-		_controller{ controller },
-		_recorder{ device_in },
-		_player{ devices_out }
+	Sequencer::Sequencer(Controller& controller) :
+		_controller{ controller }
 	{
 		_controller.OnNewEventCallback([this](const Controller::Event& event) {
 			switch (event.type) {
 			case Controller::Event::INPUT_DEVICE:
+				_recorder.SetDevice(event.data.id);
 				break;
-			case Controller::Event::OUTPUT_DEVICE:
+			case Controller::Event::OUTPUT_DEVICE_ADD:
+				_player.AddDevice(event.data.od);
+				break;
+			case Controller::Event::OUTPUT_DEVICE_REMOVE:
+				_player.RemoveDevice(event.data.od);
 				break;
 			case Controller::Event::SEQUENCER_MODE:
-				SetMode(static_cast<SeqMode>(event.i), event.b);
+				SetMode(event.data.i);
 				break;
 			case Controller::Event::PATTERN:
-				return UpdatePatternIndex(_bank_index, event.i);
+				return UpdatePatternIndex(_bank_index, event.data.i);
 				break;
 			case Controller::Event::BANK:
-				return UpdatePatternIndex(event.i, _pattern_index);
+				return UpdatePatternIndex(event.data.i, _pattern_index);
 				break;
 			case Controller::Event::TAP:
 				break;
@@ -34,15 +37,18 @@ namespace Core {
 		_recorder.Stop();
 	}
 
-	void Sequencer::SetMode(SeqMode mode, bool stepper) {
-		_mode = mode;
-		_stepper_mode = stepper;
+	void Sequencer::Run() {
+		_controller.Run();
+		_recorder.Run();
+		_player.Run();
+	}
 
+	void Sequencer::SetMode(unsigned int flag) {
 		_player.Stop();
 		_recorder.Stop();
 
-		switch (_mode) {
-		case SeqMode::Record:
+		switch (flag & 0b111) {
+		case SeqMode_Record:
 		{
 			unsigned int step_count = 0;
 			if (_pattern_index > 0)
@@ -52,18 +58,12 @@ namespace Core {
 
 			break;
 		}
-		case SeqMode::Play:
+		case SeqMode_Play:
 		{
 			_player.Start(GetPattern());
 			break;
 		}
 		}
-	}
-
-	void Sequencer::Run() {
-		_controller.Run();
-		_recorder.Run();
-		_player.Run();
 	}
 
 	bool Sequencer::UpdatePatternIndex(unsigned int bank, unsigned int pattern) {

@@ -3,9 +3,15 @@
 #include <algorithm>
 
 namespace Core {
-	Recorder::Recorder(std::shared_ptr<InputDevice> device) :
-		_device{ device }
-	{ }
+	void Recorder::SetDevice(std::shared_ptr<InputDevice> device) {
+		if (!device)
+			return;
+		
+		if (_device)
+			Stop();
+
+		_device = device;
+	}
 
 	void Recorder::Start(Pattern& pattern, unsigned int step_count) {
 		_pattern = pattern;

@@ -13,7 +13,9 @@
 namespace Core {
 	class Recorder {
 	public:
-		Recorder(std::shared_ptr<InputDevice> device);
+		Recorder() = default;
+
+		void SetDevice(std::shared_ptr<InputDevice> device);
 
 		void Start(Pattern& pattern, unsigned int step_count);
 		void Stop();

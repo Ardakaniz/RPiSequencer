@@ -3,9 +3,17 @@
 #include <algorithm>
 
 namespace Core {
-	Player::Player(const std::vector<std::shared_ptr<OutputDevice>>& devices) :
-		_devices{ devices }
-	{ }
+	void Player::AddDevice(std::shared_ptr<OutputDevice> device) {
+		auto it = std::find(std::begin(_devices), std::end(_devices), device);
+		if (it == std::end(_devices))
+			_devices.push_back(device);
+	}
+
+	void Player::RemoveDevice(std::shared_ptr<OutputDevice> device) {
+		auto it = std::find(std::begin(_devices), std::end(_devices), device);
+		if (it != std::end(_devices))
+			_devices.erase(it);
+	}
 
 	void Player::Start(Pattern& pattern, bool loop) {
 		_pattern = pattern;
@@ -39,7 +47,7 @@ namespace Core {
 			}
 		}
 
-		// But whatever, we check always if there are notes to release
+		// But whatever, we always check if there are notes to release
 		auto remove_it = std::remove_if(std::begin(_played_note), std::end(_played_note), [&now, this](const Note& note) { 
 			if (now >= note.release_instant) {
 				StopNote(note);
