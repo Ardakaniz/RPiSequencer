@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <variant>
 #include <vector>
 
 class InputDevice;
@@ -13,16 +14,15 @@ public:
 	struct Event {
 		enum Type {
 			INPUT_DEVICE,
-			OUTPUT_DEVICE,
+			OUTPUT_DEVICE_ADD,
+			OUTPUT_DEVICE_REMOVE,
 			SEQUENCER_MODE,
 			PATTERN,
 			BANK,
 			TAP,
 		} type;
 
-		std::string s;
-		bool b;
-		unsigned int i;
+		std::variant<bool, unsigned int, std::string, std::shared_ptr<InputDevice>, std::shared_ptr<OutputDevice>> data;
 	};
 
 	using EventCallback = std::function<bool(const Event&)>; // Return false if the event hasnt been accepted or ignored

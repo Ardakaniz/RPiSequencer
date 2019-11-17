@@ -7,22 +7,22 @@ namespace Core {
 		_controller.OnNewEventCallback([this](const Controller::Event& event) {
 			switch (event.type) {
 			case Controller::Event::INPUT_DEVICE:
-				_recorder.SetDevice(event.data.id);
+				_recorder.SetDevice(std::get<std::shared_ptr<InputDevice>>(event.data));
 				break;
 			case Controller::Event::OUTPUT_DEVICE_ADD:
-				_player.AddDevice(event.data.od);
+				_player.AddDevice(std::get<std::shared_ptr<OutputDevice>>(event.data));
 				break;
 			case Controller::Event::OUTPUT_DEVICE_REMOVE:
-				_player.RemoveDevice(event.data.od);
+				_player.RemoveDevice(std::get<std::shared_ptr<OutputDevice>>(event.data));
 				break;
 			case Controller::Event::SEQUENCER_MODE:
-				SetMode(event.data.i);
+				SetMode(std::get<unsigned int>(event.data));
 				break;
 			case Controller::Event::PATTERN:
-				return UpdatePatternIndex(_bank_index, event.data.i);
+				return UpdatePatternIndex(_bank_index, std::get<unsigned int>(event.data));
 				break;
 			case Controller::Event::BANK:
-				return UpdatePatternIndex(event.data.i, _pattern_index);
+				return UpdatePatternIndex(std::get<unsigned int>(event.data), _pattern_index);
 				break;
 			case Controller::Event::TAP:
 				break;
