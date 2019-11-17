@@ -9,6 +9,10 @@ void Controller::OnNewEventCallback(EventCallback callback) {
 	_on_event_callback = callback;
 }
 
+bool Controller::IsStopped() const {
+	return _is_stopped;
+}
+
 bool Controller::Call(const Event& event) const {
 	if (_on_event_callback)
 		return _on_event_callback.value()(event);

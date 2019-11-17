@@ -31,11 +31,14 @@ public:
 	virtual ~Controller() = default;
 
 	virtual void OnNewEventCallback(EventCallback callback);
+	bool IsStopped() const;
 
 	virtual void Run() = 0;
 
 protected:
 	bool Call(const Event& event) const;
+
+	bool _is_stopped{ false };
 
 	const std::vector<std::shared_ptr<InputDevice>> _input_devices;
 	const std::vector<std::shared_ptr<OutputDevice>> _output_devices;
