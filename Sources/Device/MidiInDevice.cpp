@@ -4,6 +4,8 @@ void MidiInDevice::Open(unsigned int index) {
 	if (index > _midi->getPortCount())
 		throw std::runtime_error{ "[MidiInDevice] Invalid index (" + std::to_string(index) + ")" };
 
+	Close();
+
 	_index = index;
 	_midi->openPort(_index, "RPi Sequencer");
 }
