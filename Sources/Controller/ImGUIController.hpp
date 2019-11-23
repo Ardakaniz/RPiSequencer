@@ -22,6 +22,7 @@ private:
 	sf::Clock _deltaClock;
 	int _input_device_id{ 0 }, _input_port{ 0 };
 	int _output_device_id{ 0 };
+	int _seqmode;
 	std::vector<bool> _output_devices_selected;
 	std::vector<int> _output_ports;
 };

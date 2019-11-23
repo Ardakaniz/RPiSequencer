@@ -8,6 +8,7 @@ namespace Core {
 			switch (event.type) {
 			case Controller::Event::INPUT_DEVICE:
 				_recorder.SetDevice(std::get<std::shared_ptr<InputDevice>>(event.data));
+				_can_record = true;
 				break;
 			case Controller::Event::OUTPUT_DEVICE_ADD:
 				_player.AddDevice(std::get<std::shared_ptr<OutputDevice>>(event.data));
@@ -16,7 +17,7 @@ namespace Core {
 				_player.RemoveDevice(std::get<std::shared_ptr<OutputDevice>>(event.data));
 				break;
 			case Controller::Event::SEQUENCER_MODE:
-				SetMode(std::get<unsigned int>(event.data));
+				return SetMode(std::get<unsigned int>(event.data));
 				break;
 			case Controller::Event::PATTERN:
 				return UpdatePatternIndex(_bank_index, std::get<unsigned int>(event.data));
@@ -43,13 +44,16 @@ namespace Core {
 		_player.Run();
 	}
 
-	void Sequencer::SetMode(unsigned int flag) {
+	bool Sequencer::SetMode(unsigned int flag) {
 		_player.Stop();
 		_recorder.Stop();
 
 		switch (flag & 0b111) {
 		case SeqMode_Record:
 		{
+			if (!_can_record)
+				return false;
+
 			unsigned int step_count = 0;
 			if (_pattern_index > 0)
 				step_count = static_cast<unsigned int>(GetPattern(0).first.size());
@@ -64,6 +68,8 @@ namespace Core {
 			break;
 		}
 		}
+
+		return true;
 	}
 
 	bool Sequencer::UpdatePatternIndex(unsigned int bank, unsigned int pattern) {

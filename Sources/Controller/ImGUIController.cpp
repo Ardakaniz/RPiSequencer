@@ -11,7 +11,8 @@
 #include "Core/SequencerDef.hpp"
 
 ImGUIController::ImGUIController(const std::vector<std::shared_ptr<InputDevice>>& input_devices, const std::vector<std::shared_ptr<OutputDevice>>& output_devices) :
-	Controller{ input_devices, output_devices }
+	Controller{ input_devices, output_devices },
+	_seqmode{ Core::SeqMode_Stop }
 {
 	_window.create(sf::VideoMode(800, 600), "Sequencer Controller", sf::Style::Titlebar | sf::Style::Close);
 	ImGui::SFML::Init(_window);
@@ -99,12 +100,39 @@ void ImGUIController::Run() {
 		}
 		ImGui::End();
 
-		if (ImGui::Begin("Control")) {
-			if (ImGui::Button("Play"))
-				Call({ .type = Event::SEQUENCER_MODE, .data = static_cast<unsigned int>(Core::SeqMode_Play) });
+		if (ImGui::Begin("Mode")) {
+			bool update{ false };
+			int last_seqmode = _seqmode;
+			if (ImGui::Selectable("Play", (_seqmode & 0xf) == Core::SeqMode_Play)) {
+				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
+				_seqmode |= Core::SeqMode_Play;
+				update = true;
+			}
+			if (ImGui::Selectable("Transpose", (_seqmode & 0xf) == Core::SeqMode_Transpose)) {
+				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
+				_seqmode |= Core::SeqMode_Transpose;
+				update = true;
+			}
+			if (ImGui::Selectable("Arpegiator", (_seqmode & 0xf) == Core::SeqMode_Arpegiator)) {
+				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
+				_seqmode |= Core::SeqMode_Arpegiator;
+				update = true;
+			}
+			if (ImGui::Selectable("Record", (_seqmode & 0xf) == Core::SeqMode_Record)) {
+				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
+				_seqmode |= Core::SeqMode_Record;
+				update = true;
+			}
+			if (ImGui::Selectable("Stop", (_seqmode & 0xf) == Core::SeqMode_Stop)) {
+				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
+				_seqmode |= Core::SeqMode_Stop;
+				update = true;
+			}
 
-			if (ImGui::Button("Record"))
-				Call({ .type = Event::SEQUENCER_MODE, .data = static_cast<unsigned int>(Core::SeqMode_Record) });
+			if (update) {
+				if (!Call({ .type = Event::SEQUENCER_MODE, .data = static_cast<unsigned int>(_seqmode) })) // If the event is rejected...
+					_seqmode = last_seqmode; // We go back to the last mode
+			}
 		}
 		ImGui::End();
 

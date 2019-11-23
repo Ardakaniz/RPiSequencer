@@ -20,7 +20,7 @@ namespace Core {
 		void Run();
 
 	private:
-		void SetMode(unsigned int flags);
+		bool SetMode(unsigned int flags);
 		bool UpdatePatternIndex(unsigned int bank, unsigned int pattern);
 
 		inline const Pattern& GetPattern() const;
@@ -34,6 +34,7 @@ namespace Core {
 
 		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes{};
 		unsigned int _pattern_index{ 0 }, _bank_index{ 0 };
+		bool _can_record{ false }; // Can record if device is set
 	};
 }
 
