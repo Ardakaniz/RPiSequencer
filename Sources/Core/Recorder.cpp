@@ -17,7 +17,13 @@ namespace Core {
 		_pattern = pattern;
 		_step_count = step_count;
 
-		_pattern->get().second = Clock::now();
+		while (_device->ReadNote()); // We clear the input buffer
+
+		if (_pattern->get().first.empty()) // If 
+			_pattern->get().second = Clock::now();
+		else
+			_append_offset = Clock::now() - _pattern->get().first.back().release_instant;
+
 		_last_release_point = std::nullopt;
 	}
 
@@ -46,14 +52,24 @@ namespace Core {
 		auto& pattern = _pattern->get().first;
 		if (data->second) { // Note Pressed
 			note.pressed_instant = Clock::now();
+
+			if (_append_offset)
+				note.pressed_instant -= *_append_offset; // If we append these notes, we skip the delay between last note and new recording start
+
 			pattern.push_back(note);
 			_pressed_notes_id.push_back(_pattern->get().first.size() - 1);
 		}
 		else { // Note Released
 			auto corresponding_note_id = std::find_if(std::begin(_pressed_notes_id), std::end(_pressed_notes_id), [&note, &pattern, this](std::size_t id) { return note.note == pattern[id].note; });
 			if (corresponding_note_id != std::end(_pressed_notes_id)) { // If we find a corresponding note (same note value)
-				pattern[*corresponding_note_id].release_instant = Clock::now(); // We set its release instant
-				_last_release_point = pattern[*corresponding_note_id].release_instant;
+				auto& pat = pattern[*corresponding_note_id];
+
+				pat.release_instant = Clock::now(); // We set its release instant
+
+				if (_append_offset)
+					pat.release_instant -= *_append_offset;
+
+				_last_release_point = pat.release_instant;
 
 				_pressed_notes_id.erase(corresponding_note_id); // And erase it from pressed notes
 			}
