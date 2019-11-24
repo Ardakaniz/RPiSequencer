@@ -21,6 +21,10 @@ void LogDevice::Open(unsigned int index) {
 	_index = index;
 }
 
+bool LogDevice::IsOpen() const {
+	return (_os);
+}
+
 void LogDevice::Close()
 { _os = nullptr; }
 

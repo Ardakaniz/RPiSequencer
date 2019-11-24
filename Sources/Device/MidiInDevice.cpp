@@ -10,6 +10,10 @@ void MidiInDevice::Open(unsigned int index) {
 	_midi->openPort(_index, "RPi Sequencer");
 }
 
+bool MidiInDevice::IsOpen() const {
+	return _midi->isPortOpen();
+}
+
 void MidiInDevice::Close() {
 	_midi->closePort();
 }

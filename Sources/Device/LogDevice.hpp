@@ -7,6 +7,7 @@ public:
 	LogDevice() = default;
 
 	void Open(unsigned int index) override;
+	bool IsOpen() const override;
 	void Close() override;
 
 	std::string GetDeviceType() const override;
