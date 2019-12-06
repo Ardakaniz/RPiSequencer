@@ -17,7 +17,7 @@ namespace Core {
 
 		void SetDevice(std::shared_ptr<InputDevice> device);
 
-		void Start(Pattern& pattern, unsigned int step_count);
+		bool Start(Pattern& pattern, unsigned int step_count);
 		void Stop();
 		void Run();
 		bool IsRecording() const;

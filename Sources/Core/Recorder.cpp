@@ -13,11 +13,14 @@ namespace Core {
 		_device = device;
 	}
 
-	void Recorder::Start(Pattern& pattern, unsigned int step_count) {
+	bool Recorder::Start(Pattern& pattern, unsigned int step_count) {
+		if (!_device || !_device->IsOpen())
+			return false;
+		
 		_pattern = pattern;
 		_step_count = step_count;
 
-		while (_device->ReadNote()); // We clear the input buffer
+		while (_device && _device->ReadNote()); // We clear the input buffer if existing
 
 		if (_pattern->get().first.empty()) // If 
 			_pattern->get().second = Clock::now();
@@ -25,6 +28,7 @@ namespace Core {
 			_append_offset = Clock::now() - _pattern->get().first.back().release_instant;
 
 		_last_release_point = std::nullopt;
+		return true;
 	}
 
 	void Recorder::Stop() {

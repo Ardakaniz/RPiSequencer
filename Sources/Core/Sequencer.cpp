@@ -8,7 +8,6 @@ namespace Core {
 			switch (event.type) {
 			case Controller::Event::INPUT_DEVICE:
 				_recorder.SetDevice(std::get<std::shared_ptr<InputDevice>>(event.data));
-				_can_record = true;
 				break;
 			case Controller::Event::OUTPUT_DEVICE_ADD:
 				_player.AddDevice(std::get<std::shared_ptr<OutputDevice>>(event.data));
@@ -51,14 +50,11 @@ namespace Core {
 		switch (flag & 0b111) {
 		case SeqMode_Record:
 		{
-			if (!_can_record)
-				return false;
-
 			unsigned int step_count = 0;
 			if (_pattern_index > 0)
 				step_count = static_cast<unsigned int>(GetPattern(0).first.size());
 
-			_recorder.Start(GetPattern(), step_count);
+			return _recorder.Start(GetPattern(), step_count);
 
 			break;
 		}
