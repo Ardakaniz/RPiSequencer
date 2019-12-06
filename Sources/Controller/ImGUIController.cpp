@@ -46,9 +46,14 @@ void ImGUIController::Run() {
 				input_names += '\0' + input->GetDeviceType();
 			input_names += '\0';
 
+			if (_input_device_id >= _input_devices.size() + 1)
+				_input_device_id = 0;
+
 			if (ImGui::Combo("Input Device", &_input_device_id, input_names.c_str())) {
 				if (_input_device_id > 0)
 					Call({ .type = Event::INPUT_DEVICE, .data = _input_devices[_input_device_id - 1] });
+				else
+					Call({ .type = Event::INPUT_DEVICE, .data = std::shared_ptr<InputDevice>{ nullptr } });
 			}
 
 			if (_input_device_id > 0) {
@@ -57,6 +62,17 @@ void ImGUIController::Run() {
 				for (const auto& port : input_device->GetDeviceList())
 					port_names += '\0' + port;
 				port_names += '\0';
+
+				if (_input_port >= input_device->GetDeviceList().size() + 1) {
+					_input_port = 0;
+
+					// We stop the recording if there is no input device anymore
+					if ((_seqmode & 0xf) == Core::SeqMode_Record) {
+						_seqmode &= Core::SeqModeFlag_Mask;
+						_seqmode |= Core::SeqMode_Stop;
+						Call({ .type = Event::SEQUENCER_MODE, .data = static_cast<unsigned int>(_seqmode) });
+					}
+				}
 
 				if (ImGui::Combo("Device Port", &_input_port, port_names.c_str())) {
 					if (_input_port > 0)
@@ -81,6 +97,12 @@ void ImGUIController::Run() {
 						for (const auto& port : output_device->GetDeviceList())
 							port_names += '\0' + port;
 						port_names += '\0';
+
+						if (_output_ports[i] >= output_device->GetDeviceList().size() + 1) {
+							_output_ports[i] = 0;
+							_output_devices[i]->Close();
+						}
+
 						std::string name = "Device Port " + std::to_string(i);
 						if (ImGui::Combo(name.c_str(), &_output_ports[i], port_names.c_str())) {
 							if (_output_ports[i] > 0)
@@ -96,11 +118,10 @@ void ImGUIController::Run() {
 				}
 				ImGui::ListBoxFooter();
 			}
-
 		}
 		ImGui::End();
 
-		if (ImGui::Begin("Mode")) {
+		if (ImGui::Begin("Control")) {
 			bool update{ false };
 			int last_seqmode = _seqmode;
 			if (ImGui::Selectable("Play", (_seqmode & 0xf) == Core::SeqMode_Play)) {
