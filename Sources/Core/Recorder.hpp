@@ -28,7 +28,6 @@ namespace Core {
 		std::optional<std::reference_wrapper<Pattern>> _pattern{ std::nullopt };
 		unsigned int _step_count{ 0 };
 		std::vector<std::size_t> _pressed_notes_id;
-		std::optional<TimePoint> _last_release_point{ std::nullopt };
 		std::optional<Duration> _append_offset{ std::nullopt };
 	};
 }

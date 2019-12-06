@@ -4,9 +4,6 @@
 
 namespace Core {
 	void Recorder::SetDevice(std::shared_ptr<InputDevice> device) {
-		if (!device)
-			return;
-		
 		if (_device)
 			Stop();
 
@@ -27,7 +24,6 @@ namespace Core {
 		else
 			_append_offset = Clock::now() - _pattern->get().first.back().release_instant;
 
-		_last_release_point = std::nullopt;
 		return true;
 	}
 
@@ -35,18 +31,18 @@ namespace Core {
 		if (!_pattern)
 			return;
 
-		const TimePoint last_release_instant{ _last_release_point.value_or(Clock::now()) };
-
-		for (std::size_t i: _pressed_notes_id) // If there are still pressed notes, we make them release at the same time than the last released note or now if there arent any released note yet
-			_pattern->get().first[i].release_instant = last_release_instant;
+		for (std::size_t i : _pressed_notes_id) // If there are still pressed notes, we make them release now
+			_pattern->get().first[i].release_instant = Clock::now();
 		_pressed_notes_id.clear();
 
 		_pattern = std::nullopt;
 	}
 
 	void Recorder::Run() {
-		if (!IsRecording())
+		if (!IsRecording()) {
+			while (_device && _device->ReadNote()); // We clear the input buffer if existing
 			return;
+		}
 
 		std::optional<std::pair<Core::Note, bool /* is_pressed? */>> data = _device->ReadNote();
 		if (!data)
@@ -72,8 +68,6 @@ namespace Core {
 
 				if (_append_offset)
 					pat.release_instant -= *_append_offset;
-
-				_last_release_point = pat.release_instant;
 
 				_pressed_notes_id.erase(corresponding_note_id); // And erase it from pressed notes
 			}
