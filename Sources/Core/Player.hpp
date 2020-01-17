@@ -18,6 +18,7 @@ namespace Core {
 		void RemoveDevice(std::shared_ptr<OutputDevice> device);
 
 		void Start(Pattern& pattern, bool loop = true);
+		void EnableStepperMode(bool enable = true);
 		void Stop();
 		void Run();
 		bool IsPlaying() const;
@@ -34,6 +35,7 @@ namespace Core {
 		TimePoint _start_point{};
 		std::size_t _note_index{ 0 };
 		std::vector<Note> _played_note{};
-		bool _loop{ true };
+		bool _loop{ true }, _stepper_mode{ false };
+		float _stepper_tempo{ 1.f }; // Note per minute
 	};
 }

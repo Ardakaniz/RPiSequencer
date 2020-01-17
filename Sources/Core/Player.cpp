@@ -21,6 +21,10 @@ namespace Core {
 		Start();
 	}
 
+	void Player::EnableStepperMode(bool enable) {
+		_stepper_mode = enable;
+	}
+
 	void Player::Stop() {
 		for (const Note& note : _played_note) // We stop all playing note
 			StopNote(note);

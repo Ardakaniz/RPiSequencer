@@ -43,11 +43,14 @@ namespace Core {
 		_player.Run();
 	}
 
-	bool Sequencer::SetMode(unsigned int flag) {
+	bool Sequencer::SetMode(unsigned int mode) {
 		_player.Stop();
 		_recorder.Stop();
 
-		switch (flag & 0b111) {
+		unsigned int flag = mode & SeqModeFlag_Mask;
+		_player.EnableStepperMode(flag & SeqModeFlag_Stepper);
+
+		switch (mode & ~SeqModeFlag_Mask) {
 		case SeqMode_Record:
 		{
 			unsigned int step_count = 0;

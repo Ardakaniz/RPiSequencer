@@ -20,7 +20,7 @@ namespace Core {
 		void Run();
 
 	private:
-		bool SetMode(unsigned int flags);
+		bool SetMode(unsigned int mode);
 		bool UpdatePatternIndex(unsigned int bank, unsigned int pattern);
 
 		inline const Pattern& GetPattern() const;

@@ -20,7 +20,7 @@ namespace Core {
 		SeqModeFlag_Stepper = 0x10,
 
 		SeqModeFlag_Max = SeqModeFlag_Stepper,
-		SeqModeFlag_Mask = 0xf0,
+		SeqModeFlag_Mask = ~0xf,
 	};
 
 	using Pattern = std::pair<std::vector<Note>, TimePoint /* pattern_start */>;
