@@ -8,10 +8,11 @@
 #include <SFML/Window/Event.hpp>
 
 #include "Device/Device.hpp"
-#include "Core/SequencerDef.hpp"
+#include "Core/Shared.hpp"
+#include "SequenceGenerator/SequenceGenerator.hpp"
 
-ImGUIController::ImGUIController(const std::vector<std::shared_ptr<InputDevice>>& input_devices, const std::vector<std::shared_ptr<OutputDevice>>& output_devices) :
-	Controller{ input_devices, output_devices },
+ImGUIController::ImGUIController(const std::vector<std::shared_ptr<SequenceGenerator>>& generators, const std::vector<std::shared_ptr<OutputDevice>>& output_devices) :
+	Controller{ generators, output_devices },
 	_seqmode{ Core::SeqMode_Stop }
 {
 	_window.create(sf::VideoMode(800, 600), "Sequencer Controller", sf::Style::Titlebar | sf::Style::Close);
@@ -40,119 +41,105 @@ void ImGUIController::Run() {
 
 		ImGui::SFML::Update(_window, _deltaClock.restart());
 
-		if (ImGui::Begin("Devices")) {
-			std::string input_names{ "None" };
-			for (const auto& input : _input_devices)
-				input_names += '\0' + input->GetDeviceType();
-			input_names += '\0';
+		if (ImGui::Begin("Generators")) {
+			for (std::size_t i{ 0 }; i < _generators.size(); ++i) {
+				std::string id_str = "generator" + std::to_string(i);
+				if (ImGui::RadioButton((_generators[i]->GetType() + "###" + id_str).c_str(), _generator_id == i)) {
+					_generator_id = i;
+					NewEvent({ .type = Event::UPDATE_GENERATOR, .data = _generators[i] });
+				}
+			}
 
-			if (_input_device_id >= _input_devices.size() + 1)
-				_input_device_id = 0;
-
-			if (ImGui::Combo("Input Device", &_input_device_id, input_names.c_str())) {
-				if (_input_device_id > 0)
-					Call({ .type = Event::INPUT_DEVICE, .data = _input_devices[_input_device_id - 1] });
+			bool is_generating{ std::get<bool>(NewRequest({ .type = Request::IS_GENERATING })) };
+			if (ImGui::Selectable("Generate", is_generating)) {
+				if (is_generating)
+					NewEvent({ .type = Event::STOP_GENERATION });
 				else
-					Call({ .type = Event::INPUT_DEVICE, .data = std::shared_ptr<InputDevice>{ nullptr } });
+					NewEvent({ .type = Event::GENERATE });
 			}
 
-			if (_input_device_id > 0) {
-				auto& input_device = _input_devices[_input_device_id - 1];
-				std::string port_names{ "None" };
-				for (const auto& port : input_device->GetDeviceList())
-					port_names += '\0' + port;
-				port_names += '\0';
-
-				if (_input_port >= input_device->GetDeviceList().size() + 1) {
-					_input_port = 0;
-
-					// We stop the recording if there is no input device anymore
-					if ((_seqmode & 0xf) == Core::SeqMode_Record) {
-						_seqmode &= Core::SeqModeFlag_Mask;
-						_seqmode |= Core::SeqMode_Stop;
-						Call({ .type = Event::SEQUENCER_MODE, .data = static_cast<unsigned int>(_seqmode) });
-					}
-				}
-
-				if (ImGui::Combo("Device Port", &_input_port, port_names.c_str())) {
-					if (_input_port > 0)
-						input_device->Open(_input_port - 1);
-					else
-						input_device->Close();
-				}
-			}
-
-			ImGui::Separator();
-
-			if (ImGui::ListBoxHeader("Output Devices")) {
-				for (std::size_t i{ 0 }; i < _output_devices.size(); ++i) {
-					if (ImGui::RadioButton(_output_devices[i]->GetDeviceType().c_str(), _output_devices_selected[i])) {
-						_output_devices_selected[i] = !_output_devices_selected[i];
-						Call({ .type = _output_devices_selected[i] ? Event::OUTPUT_DEVICE_ADD : Event::OUTPUT_DEVICE_REMOVE, .data = _output_devices[i] });
-					}
-
-					if (_output_devices_selected[i]) {
-						auto& output_device = _output_devices[i];
-						std::string port_names{ "None" };
-						for (const auto& port : output_device->GetDeviceList())
-							port_names += '\0' + port;
-						port_names += '\0';
-
-						if (_output_ports[i] >= output_device->GetDeviceList().size() + 1) {
-							_output_ports[i] = 0;
-							_output_devices[i]->Close();
-						}
-
-						std::string name = "Device Port " + std::to_string(i);
-						if (ImGui::Combo(name.c_str(), &_output_ports[i], port_names.c_str())) {
-							if (_output_ports[i] > 0)
-								_output_devices[i]->Open(_output_ports[i] - 1);
-							else
-								_output_devices[i]->Close();
-						}
-					}
-					else if (_output_ports[i] > 0) {
-						_output_devices[i]->Close();
-						_output_ports[i] = 0;
-					}
-				}
-				ImGui::ListBoxFooter();
-			}
 		}
 		ImGui::End();
 
+		if (ImGui::Begin("Output Devices")) {
+			for (std::size_t i{ 0 }; i < _output_devices.size(); ++i) {
+				if (ImGui::RadioButton(_output_devices[i]->GetDeviceType().c_str(), _output_devices_selected[i])) {
+					_output_devices_selected[i] = !_output_devices_selected[i];
+					NewEvent({ .type = _output_devices_selected[i] ? Event::ADD_OUTPUT_DEVICE : Event::REMOVE_OUTPUT_DEVICE, .data = _output_devices[i] });
+				}
+
+				if (_output_devices_selected[i]) {
+					auto& output_device = _output_devices[i];
+					std::string port_names{ "None" };
+					for (const auto& port : output_device->GetDeviceList())
+						port_names += '\0' + port;
+					port_names += '\0';
+
+					if (_output_ports[i] >= output_device->GetDeviceList().size() + 1) {
+						_output_ports[i] = 0;
+						_output_devices[i]->Close();
+					}
+
+					std::string id = "Device Port " + std::to_string(i);
+					if (ImGui::Combo(("DevicePort###" + id).c_str(), &_output_ports[i], port_names.c_str())) {
+						if (_output_ports[i] > 0)
+							_output_devices[i]->Open(_output_ports[i] - 1);
+						else
+							_output_devices[i]->Close();
+					}
+				}
+				else if (_output_ports[i] > 0) {
+					_output_devices[i]->Close();
+					_output_ports[i] = 0;
+				}
+			}
+			ImGui::End();
+		}
+
 		if (ImGui::Begin("Control")) {
-			bool update{ false };
 			int last_seqmode = _seqmode;
 			if (ImGui::Selectable("Play", (_seqmode & 0xf) == Core::SeqMode_Play)) {
 				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
 				_seqmode |= Core::SeqMode_Play;
-				update = true;
+
+				if (!NewEvent({ .type = Event::PLAY }))
+					_seqmode = last_seqmode;
 			}
 			if (ImGui::Selectable("Transpose", (_seqmode & 0xf) == Core::SeqMode_Transpose)) {
 				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
 				_seqmode |= Core::SeqMode_Transpose;
-				update = true;
-			}
-			if (ImGui::Selectable("Arpegiator", (_seqmode & 0xf) == Core::SeqMode_Arpegiator)) {
-				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
-				_seqmode |= Core::SeqMode_Arpegiator;
-				update = true;
-			}
-			if (ImGui::Selectable("Record", (_seqmode & 0xf) == Core::SeqMode_Record)) {
-				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
-				_seqmode |= Core::SeqMode_Record;
-				update = true;
+
+				if (!NewEvent({ .type = Event::TRANSPOSE }))
+					_seqmode = last_seqmode;
 			}
 			if (ImGui::Selectable("Stop", (_seqmode & 0xf) == Core::SeqMode_Stop)) {
 				_seqmode &= Core::SeqModeFlag_Mask; // Keep only flags
 				_seqmode |= Core::SeqMode_Stop;
-				update = true;
-			}
 
-			if (update) {
-				if (!Call({ .type = Event::SEQUENCER_MODE, .data = static_cast<unsigned int>(_seqmode) })) // If the event is rejected...
-					_seqmode = last_seqmode; // We go back to the last mode
+				if (!NewEvent({ .type = Event::STOP }))
+					_seqmode = last_seqmode;
+			}
+		}
+		ImGui::End();
+
+		if (ImGui::Begin("Sequence")) {
+			std::size_t size{ std::get<std::size_t>(NewRequest({ .type = Request::SEQUENCE_SIZE })) };
+
+			for (std::size_t i = 0; i < size; ++i) {
+				bool is_active{ std::get<std::size_t>(NewRequest({ .type = Request::SEQUENCE_STEP_INDEX })) == i };
+				ImGui::PushID(("sequencer_step_" + std::to_string(i)).c_str());
+					ImGui::RadioButton("", is_active);
+				ImGui::PopID();
+				ImGui::SameLine();
+			}
+			ImGui::NewLine();
+
+			for (unsigned int i = 0; i < size; ++i) {
+				ImGui::PushID(("sequencer_mutes_" + std::to_string(i)).c_str());
+				bool b{ false };
+				ImGui::Checkbox("", &b);
+				ImGui::PopID();
+				ImGui::SameLine();
 			}
 		}
 		ImGui::End();

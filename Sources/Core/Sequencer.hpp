@@ -1,15 +1,10 @@
 #pragma once
 
 #include <array>
-#include <memory>
-#include <vector>
 
 #include "Controller/Controller.hpp"
-#include "Device/Device.hpp"
-#include "Core/Note.hpp"
 #include "Core/Player.hpp"
-#include "Core/Recorder.hpp"
-#include "Core/SequencerDef.hpp"
+#include "Core/Pattern.hpp"
 
 namespace Core {
 	class Sequencer {
@@ -20,21 +15,15 @@ namespace Core {
 		void Run();
 
 	private:
-		bool SetMode(unsigned int mode);
-		bool UpdatePatternIndex(unsigned int bank, unsigned int pattern);
-
-		inline const Pattern& GetPattern() const;
-		inline Pattern& GetPattern();
-		inline const Pattern& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT) const;
-		inline Pattern& GetPattern(unsigned int pattern_index, unsigned int bank_index = BANK_COUNT);
+		bool ChangeSequence(std::size_t pattern, std::size_t sequence = std::numeric_limits<std::size_t>::max());
 
 		Controller& _controller;
-		Recorder _recorder;
+		std::shared_ptr<SequenceGenerator> _generator;
 		Player _player;
 
-		std::array<Pattern, BANK_COUNT * PATTERN_COUNT> _notes{};
-		unsigned int _pattern_index{ 0 }, _bank_index{ 0 };
+		std::array<Pattern, BANK_SIZE> _patterns;
+		std::size_t _pattern_index{ 0 };
+
+		bool _changed_sequence{ true };
 	};
 }
-
-#include "Core/Sequencer.inl"

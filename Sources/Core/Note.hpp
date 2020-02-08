@@ -8,12 +8,8 @@
 namespace Core {
 	struct Note {
 		std::uint8_t note, velocity;
-		TimePoint pressed_instant, release_instant;
+		Duration on_duration, total_duration; // Duration while the note is on vs Duration before changing note (NB: it is possible that total < on )
 
 		std::uint8_t chan{ 0 };
-
-		inline auto GetDuration() const {
-			return std::chrono::duration_cast<Duration>(release_instant - pressed_instant).count();
-		}
 	};
 }

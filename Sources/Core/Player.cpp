@@ -15,10 +15,27 @@ namespace Core {
 			_devices.erase(it);
 	}
 
-	void Player::Start(Pattern& pattern, bool loop) {
-		_pattern = pattern;
+	void Player::Start(bool loop) {
 		_loop = loop;
-		Start();
+		_stopped = false;
+	}
+
+	void Player::Start(Sequence& seq, bool loop) {
+		if (seq.GetSize() == 0)
+			return;
+
+		_sequence = seq;
+		_loop = loop;
+		Restart();
+	}
+
+	void Player::Restart() {
+		_stopped = false;
+
+		_note_index = 0;
+		_change_note_instant = TimePoint::min();
+
+		PlayCurrentNote(Clock::now()); // Play the first note
 	}
 
 	void Player::EnableStepperMode(bool enable) {
@@ -26,65 +43,60 @@ namespace Core {
 	}
 
 	void Player::Stop() {
-		for (const Note& note : _played_note) // We stop all playing note
-			StopNote(note);
-		_played_note.clear();
+		for (const auto& note : _playing_note) // We stop all playing note
+			StopNote(note.first);
+		_playing_note.clear();
 
-		_pattern = std::nullopt;
+		_stopped = true;
 	}
 
 	void Player::Run() {
 		if (!IsPlaying()) {
-			if (_loop && _pattern)
-				Start(); // If we must loop, we restart the player if possible when done
+			if (_loop && _sequence && !_stopped)
+				Restart(); // If we must loop, we restart the player if possible when done
 			else
 				return;
 		}
 
 		auto now = Clock::now();
-		if (_note_index < _pattern->get().first.size()) { // If there is still notes to play
-			Note shifted_note = ShiftNoteTime(_pattern->get().first[_note_index]);
-			if (now >= shifted_note.pressed_instant) {
-				PlayNote(shifted_note);
-				_played_note.push_back(shifted_note);
-				++_note_index;
-			}
+
+		if (now >= _change_note_instant) {
+			++_note_index;
+
+			if (_note_index < _sequence->get().GetSize())
+				PlayCurrentNote(now);
 		}
 
-		// But whatever, we always check if there are notes to release
-		auto remove_it = std::remove_if(std::begin(_played_note), std::end(_played_note), [&now, this](const Note& note) { 
-			if (now >= note.release_instant) {
-				StopNote(note);
+		// We check if there are notes to release
+		auto remove_it = std::remove_if(std::begin(_playing_note), std::end(_playing_note), [&now, this](const auto& note) {
+			if (now >= note.first.on_duration + note.second) {
+				StopNote(note.first);
 				return true;
 			}
+
 			return false;
 		});
-
-		_played_note.erase(remove_it, std::end(_played_note));
+		_playing_note.erase(remove_it, std::end(_playing_note));
 	}
 
 	bool Player::IsPlaying() const {
-		return (_pattern) && (_note_index < _pattern->get().first.size() || !_played_note.empty());
-	}
-	
-	void Player::Start() {
-		_start_point = Clock::now();
-		_note_index = 0;
+		return _sequence && !_stopped && (_note_index < _sequence->get().GetSize() || !_playing_note.empty());
 	}
 
-	Note Player::ShiftNoteTime(const Note& note) {
-		const Duration instant_offset = std::chrono::duration_cast<Duration>(_start_point - _pattern->get().second);
-		
-		Note new_note{ note };
-		new_note.pressed_instant += instant_offset;
-		new_note.release_instant += instant_offset;
-
-		return new_note;
+	std::size_t Player::GetNoteIndexPlaying() const {
+		return _note_index;
 	}
 
-	void Player::PlayNote(const Note& note) {
-		for (auto device : _devices)
-			device->PlayNote(note);
+	void Player::PlayCurrentNote(TimePoint now) {
+		const auto& note = _sequence->get().GetNote(_note_index);
+
+		_change_note_instant = now + note.first.total_duration;
+		if (note.second) { // If the note is not muted, we play it
+			_playing_note.emplace_back(note.first, now);
+
+			for (auto device : _devices)
+				device->PlayNote(note.first);
+		}
 	}
 	
 	void Player::StopNote(const Note& note) {

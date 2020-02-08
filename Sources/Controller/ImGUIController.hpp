@@ -12,7 +12,7 @@
 
 class ImGUIController : public Controller {
 public:
-	ImGUIController(const std::vector<std::shared_ptr<InputDevice>>& input_devices, const std::vector<std::shared_ptr<OutputDevice>>& output_devices);
+	ImGUIController(const std::vector<std::shared_ptr<SequenceGenerator>>& generators, const std::vector<std::shared_ptr<OutputDevice>>& output_devices);
 	~ImGUIController();
 
 	void Run() override;
@@ -20,7 +20,7 @@ public:
 private:
 	sf::RenderWindow _window;
 	sf::Clock _deltaClock;
-	int _input_device_id{ 0 }, _input_port{ 0 };
+	int _generator_id{ 0 };
 	int _seqmode;
 	std::vector<bool> _output_devices_selected;
 	std::vector<int> _output_ports;

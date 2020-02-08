@@ -6,7 +6,7 @@
 #include <optional>
 
 #include "Core/Clock.hpp"
-#include "Core/SequencerDef.hpp"
+#include "Core/Pattern.hpp"
 #include "Device/Device.hpp"
 
 namespace Core {
@@ -17,25 +17,29 @@ namespace Core {
 		void AddDevice(std::shared_ptr<OutputDevice> device);
 		void RemoveDevice(std::shared_ptr<OutputDevice> device);
 
-		void Start(Pattern& pattern, bool loop = true);
+		void Start(bool loop = true);
+		void Start(Sequence& sequence, bool loop = true);
+		void Restart();
 		void EnableStepperMode(bool enable = true);
 		void Stop();
 		void Run();
 		bool IsPlaying() const;
 
+		std::size_t GetNoteIndexPlaying() const;
+
 	private:
-		void Start(); // Actually used to restart
-		Note ShiftNoteTime(const Note& note);
-		void PlayNote(const Note& note);
+		void PlayCurrentNote(TimePoint now);
 		void StopNote(const Note& note);
 
 		std::vector<std::shared_ptr<OutputDevice>> _devices;
 
-		std::optional<std::reference_wrapper<Pattern>> _pattern{ std::nullopt };
-		TimePoint _start_point{};
+		std::optional<std::reference_wrapper<Sequence>> _sequence{ std::nullopt };
+		std::vector<std::pair<Note, TimePoint>> _playing_note;
+		TimePoint _change_note_instant;
 		std::size_t _note_index{ 0 };
-		std::vector<Note> _played_note{};
-		bool _loop{ true }, _stepper_mode{ false };
+
+		bool _stopped{ true };
+		bool _loop{ false }, _stepper_mode{ false };
 		float _stepper_tempo{ 1.f }; // Note per minute
 	};
 }
