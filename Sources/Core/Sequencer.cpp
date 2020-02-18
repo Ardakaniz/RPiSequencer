@@ -2,6 +2,8 @@
 
 #include "SequenceGenerator/SequenceGenerator.hpp"
 
+#include <cassert>
+
 namespace Core {
 	Sequencer::Sequencer(Controller& controller) :
 		_controller{ controller }
@@ -49,6 +51,12 @@ namespace Core {
 			case Controller::Event::STOP:
 				_player.Stop();
 				break;
+			case Controller::Event::MUTE_STEP:
+				_patterns[_pattern_index].GetSequence().Mute(std::get<std::size_t>(event.data));
+				break;
+			case Controller::Event::UNMUTE_STEP:
+				_patterns[_pattern_index].GetSequence().Mute(std::get<std::size_t>(event.data), false);
+				break;
 			case Controller::Event::SELECT_PATTERN:
 				return ChangeSequence(_pattern_index, std::get<unsigned int>(event.data));
 				break;
@@ -71,7 +79,7 @@ namespace Core {
 				return _player.GetNoteIndexPlaying();
 
 			case Controller::Request::SEQUENCE_STEP_MUTE:
-				return false;
+				return _patterns[_pattern_index].GetSequence().IsMuted(std::get<std::size_t>(req.param));
 
 			case Controller::Request::IS_GENERATING:
 				if (_generator)
@@ -79,6 +87,8 @@ namespace Core {
 				else
 					return false;
 			}
+
+			assert(false);
 		});
 	}
 

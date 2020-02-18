@@ -23,16 +23,20 @@ public:
 			GENERATE,
 			STOP_GENERATION,
 			STOP,
+			MUTE_STEP,
+			UNMUTE_STEP,
 
 			SELECT_PATTERN,
 			SELECT_BANK,
 			TAP,
 		} type;
 
-		std::variant<unsigned int,std::shared_ptr<InputDevice>, std::shared_ptr<OutputDevice>, std::shared_ptr<SequenceGenerator>> data;
+		std::variant<std::monostate, unsigned int, std::size_t, std::shared_ptr<InputDevice>, std::shared_ptr<OutputDevice>, std::shared_ptr<SequenceGenerator>> data{};
 	};
 
 	struct Request {
+		using Data = std::variant<std::monostate, std::size_t, bool>;
+
 		enum Type {
 			SEQUENCE_SIZE,
 			SEQUENCE_STEP_INDEX,
@@ -41,7 +45,7 @@ public:
 			IS_GENERATING,
 		} type;
 
-		using Data = std::variant<std::size_t, bool>;
+		Data param;
 	};
 
 	using EventCallback   = std::function<bool(const Event&)>; // Return false if the event hasnt been accepted or ignored

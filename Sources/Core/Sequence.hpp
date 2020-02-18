@@ -19,9 +19,10 @@ namespace Core {
 
 		bool Append(SequenceGenerator& gen);
 		bool Insert(SequenceGenerator& gen, std::size_t index);
-		bool Mute(std::size_t index);
+		bool Mute(std::size_t index, bool mute = true);
 		bool Delete(std::size_t index);
 
+		bool IsMuted(std::size_t index) const;
 		const std::pair<Note, bool>& GetNote(std::size_t index) const;
 		std::size_t GetSize() const;
 

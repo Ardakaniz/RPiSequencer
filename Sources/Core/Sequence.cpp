@@ -43,11 +43,11 @@ namespace Core {
 		return true;
 	}
 
-	bool Sequence::Mute(std::size_t index) {
+	bool Sequence::Mute(std::size_t index, bool mute) {
 		if (index >= _notes.size())
 			return false;
 
-		_notes[index].second = false; // We mute the note
+		_notes[index].second = !mute; // We mute the note
 		return true;
 	}
 
@@ -59,6 +59,13 @@ namespace Core {
 		_notes[index].second = false; // We mute the note
 		_end_id = index; // And change the end of this sequence
 		return true;
+	}
+
+	bool Sequence::IsMuted(std::size_t index) const {
+		if (index >= _notes.size())
+			return false;
+
+		return _notes[index].second;
 	}
 
 	const std::pair<Note, bool>& Sequence::GetNote(std::size_t index) const {
