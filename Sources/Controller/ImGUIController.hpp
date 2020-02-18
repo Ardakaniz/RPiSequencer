@@ -3,6 +3,7 @@
 #ifdef IMGUI_CONTROLLER
 
 #include "Controller/Controller.hpp"
+#include "SequenceGenerator/SequenceGenerator.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -21,6 +22,7 @@ private:
 	sf::RenderWindow _window;
 	sf::Clock _deltaClock;
 	int _generator_id{ 0 };
+	std::vector<SequenceGenerator::ParameterVariant> _generators_params;
 	int _seqmode;
 	std::vector<bool> _output_devices_selected;
 	std::vector<int> _output_ports;
