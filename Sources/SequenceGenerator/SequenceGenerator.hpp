@@ -14,6 +14,7 @@ public:
 		UINT,
 		INT,
 		FLOAT,
+		UFLOAT,
 		STR,
 		USERDATA
 	};
