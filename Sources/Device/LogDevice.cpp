@@ -53,7 +53,7 @@ void LogDevice::PlayNote(const Core::Note& note) {
 	if (!_os)
 		return;
 
-	(*_os) << "Playing Note " << note.note << " for " << std::chrono::duration_cast<Core::Duration>(note.release_instant - note.pressed_instant).count() / (1'000'000'000.f) << "s" << std::endl;
+	(*_os) << "Playing Note " << note.note << " for " << (note.on_duration.count() / (1'000'000'000.f)) << "s" << std::endl;
 }
 
 void LogDevice::StopNote(const Core::Note& note) {
